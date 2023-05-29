@@ -185,9 +185,15 @@ class Dropshipping_Supplier
 	 */
     public function add_actions()
     {
-        add_action( "init",                  [ $this, "add_custom_order_status" ]    );
-		add_action( "admin_menu",            [ $this, "add_admin_menu"          ], 9 );
-        add_action( "admin_enqueue_scripts", [ $this, "add_admin_style"         ]    );
+        add_action( "init",                     [ $this, "add_custom_order_status"        ]     );
+		add_action( "admin_menu",               [ $this, "add_admin_menu"                 ], 9  );
+        add_action( "admin_enqueue_scripts",    [ $this, "add_admin_style"                ]     );
+
+		add_action( "show_user_profile",        [ $this, "extra_user_profile_fields"      ], 12 );
+		add_action( "edit_user_profile",        [ $this, "extra_user_profile_fields"      ], 12 );
+
+		add_action( "personal_options_update",  [ $this, "save_extra_user_profile_fields" ]     );
+		add_action( "edit_user_profile_update", [ $this, "save_extra_user_profile_fields" ]     );
     }
 
 	/**
@@ -338,9 +344,10 @@ class Dropshipping_Supplier
 		if ( !current_user_can( "manage_options" ) ) wp_die( __( "You do not have sufficient permissions to access this page." ) );
 
 		$tabs = [
-			"general"  => "General",
-			"settings" => "Settings",
-			"tools"    => "Tools",
+			"general"     => "General",
+			"shopkeepers" => "List of shopkeepers",
+			"settings"    => "Settings",
+			"tools"       => "Tools",
 		];
 
 		$tab  = isset( $_GET[ "tab" ] ) ? $_GET[ "tab" ] : "general";
@@ -374,5 +381,38 @@ class Dropshipping_Supplier
 		$type = "error";
 
 		add_settings_error( $setting_field, $err_code, $message, $type );
+	}
+
+	/**
+	 * Add extra fields to user profile
+	 *
+	 * @since 	1.0.0
+	 * @param 	object $user
+	 * @return 	void
+	 */
+	public static function extra_user_profile_fields( $user )
+	{
+		require_once( dirname( self::FILE ) . "/templates/admin/shopkeeper-profile.php" );
+	}
+
+	/**
+	 * Save change on extra fields of user profile
+	 *
+	 * @since 	1.0.0
+	 * @param 	string $user_id
+	 * @return 	void
+	 */
+	public static function save_extra_user_profile_fields( $user_id )
+	{
+		$empty  = empty( $_POST[ "_wpnonce" ] );
+		$verify = !wp_verify_nonce( $_POST[ "_wpnonce" ], "update-user_" . $user_id );
+
+		if ( $empty || $verify ) return;
+
+		if ( !current_user_can( "edit_user", $user_id ) ) return false;
+
+		update_user_meta( $user_id, "address",    $_POST[ "address"    ] );
+		update_user_meta( $user_id, "city",       $_POST[ "city"       ] );
+		update_user_meta( $user_id, "postalcode", $_POST[ "postalcode" ] );
 	}
 }
