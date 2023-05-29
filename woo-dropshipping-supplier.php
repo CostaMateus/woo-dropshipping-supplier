@@ -124,6 +124,8 @@ class Dropshipping_Supplier
             $order->update_status( "shipped", "", true );
             $order->save();
         }
+
+        self::add_role();
     }
 
     /**
@@ -150,6 +152,8 @@ class Dropshipping_Supplier
             $order->update_status( "processing" );
             $order->save();
         }
+
+        remove_role( "shopkeeper" );
     }
 
 	/**
@@ -233,6 +237,22 @@ class Dropshipping_Supplier
                 "label_count"               => _n_noop( "Shipped <span class='count'>(%s)</span>", "Shipped <span class='count'>(%s)</span>" )
             ] );
         }
+    }
+
+	/**
+	 * Create the role 'shopkeeper'.
+	 *
+	 * @version	1.0.0
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+    public static function add_role()
+    {
+        add_role(
+            "shopkeeper",
+            "Shopkeeper",
+            get_role( "shop_manager" )->capabilities,
+        );
     }
 
     /**
