@@ -189,8 +189,9 @@ class Dropshipping_Supplier
 	 */
     public function add_actions()
     {
-        add_action( "init",                  [ $this, "add_custom_order_status" ] );
-        add_action( "admin_enqueue_scripts", [ $this, "add_admin_style"         ] );
+        add_action( "init",                  [ $this, "add_custom_order_status" ]    );
+		add_action( "admin_menu",            [ $this, "add_admin_menu"          ], 9 );
+        add_action( "admin_enqueue_scripts", [ $this, "add_admin_style"         ]    );
     }
 
 	/**
@@ -292,4 +293,72 @@ class Dropshipping_Supplier
 
         return $new_order_statuses;
     }
+
+	/**
+	 * Add submenu on WP Settings menu
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function add_admin_menu()
+	{
+		add_menu_page(
+			"Dropshipping Supplier Module",
+			"DSM - Supplier",
+			'manage_options',
+			self::DOMAIN,
+			[ $this, "display_admin_menu" ],
+			plugins_url( "assets/images/supplier.png", self::FILE ),
+            65
+		);
+	}
+
+	/**
+	 *
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function display_admin_menu()
+	{
+		if ( !current_user_can( "manage_options" ) ) wp_die( __( "You do not have sufficient permissions to access this page." ) );
+
+		$tabs = [
+			"general"  => "General",
+			"settings" => "Settings",
+			"tools"    => "Tools",
+		];
+
+		$tab  = isset( $_GET[ "tab" ] ) ? $_GET[ "tab" ] : "general";
+
+		if ( isset( $_GET[ "error_message" ] ) )
+		{
+			add_action( "admin_notices", [ $this, "admin_settings_messages" ] );
+			do_action( "admin_notices", $_GET[ "error_message" ] );
+		}
+
+		require_once( dirname( self::FILE ) . "/templates/admin/settings.php" );
+	}
+
+	/**
+	 * Handles errors and displays messages accordingly
+	 *
+	 * @since 	1.0.0
+	 * @param 	string $error_message
+	 */
+	public function admin_settings_messages( $error_message )
+	{
+		switch ( $error_message )
+		{
+			case "1":
+				$message       = __( "There was an error adding this setting. Please try again. If this persists, shoot us an email.", self::DOMAIN );
+				$err_code      = esc_attr( "woo_ds_supplier-example-setting" );
+				$setting_field = "woo_ds_supplier_example_setting";
+			break;
+		}
+
+		$type = "error";
+
+		add_settings_error( $setting_field, $err_code, $message, $type );
+	}
 }
