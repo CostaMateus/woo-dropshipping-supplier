@@ -86,7 +86,6 @@ class Dropshipping_Supplier
 	/**
 	 * Return an instance of this class.
 	 *
-	 * @version	1.0.0
 	 * @since 	1.0.0
 	 * @return 	object A single instance of this class.
 	 */
@@ -100,7 +99,6 @@ class Dropshipping_Supplier
     /**
      * On activation, change all orders with status 'processing' and meta '_woo_ds_supplier_status_shipped' to status 'shipped'.
      *
-     * @version	1.0.0
      * @since 	1.0.0
      * @return  void
      */
@@ -126,12 +124,12 @@ class Dropshipping_Supplier
         }
 
         self::add_role();
+		self::add_hash_cost();
     }
 
     /**
      * On deactivation, change all orders with status 'shipped' to 'processing'.
      *
-     * @version	1.0.0
      * @since 	1.0.0
      * @return  void
      */
@@ -154,12 +152,12 @@ class Dropshipping_Supplier
         }
 
         remove_role( "shopkeeper" );
+		delete_option( "woo_ds_hash_cost" );
     }
 
 	/**
 	 * Woo missing notice.
 	 *
-	 * @version	1.0.0
 	 * @since 	1.0.0
 	 * @return 	void
 	 */
@@ -171,7 +169,6 @@ class Dropshipping_Supplier
 	/**
 	 * ECFB missing notice.
 	 *
-	 * @version	1.0.0
 	 * @since 	1.0.0
 	 * @return 	void
 	 */
@@ -183,7 +180,6 @@ class Dropshipping_Supplier
 	/**
 	 * Init plugin actions.
 	 *
-	 * @version	1.0.0
 	 * @since 	1.0.0
 	 * @return 	void
 	 */
@@ -197,7 +193,6 @@ class Dropshipping_Supplier
 	/**
 	 * Init plugin filters.
 	 *
-	 * @version	1.0.0
 	 * @since 	1.0.0
 	 * @return 	void
 	 */
@@ -209,7 +204,6 @@ class Dropshipping_Supplier
 	/**
 	 * Create the status 'wc-shipped'.
 	 *
-	 * @version	1.0.0
 	 * @since 	1.0.0
 	 * @return 	void
 	 */
@@ -243,7 +237,6 @@ class Dropshipping_Supplier
 	/**
 	 * Create the role 'shopkeeper'.
 	 *
-	 * @version	1.0.0
 	 * @since 	1.0.0
 	 * @return 	void
 	 */
@@ -256,10 +249,32 @@ class Dropshipping_Supplier
         );
     }
 
+	/**
+	 * Calculates and saves, the maximum cost for the hash
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public static function add_hash_cost()
+	{
+		$t = 0.25; // 250 milliseconds
+		$c = 8;
+
+		do
+		{
+			$c++;
+			$s = microtime( true );
+			password_hash( "woo_ds_hash_cost", PASSWORD_BCRYPT, [ "cost" => $c ] );
+			$e = microtime( true );
+		}
+		while ( ( $e - $s ) < $t );
+
+		add_option( "woo_ds_hash_cost", $c, "", "no" );
+	}
+
     /**
      * Add admin style.
      *
-	 * @version	1.0.0
 	 * @since 	1.0.0
 	 * @return 	void
      */
@@ -274,7 +289,6 @@ class Dropshipping_Supplier
 	/**
 	 * Add 'shipped' status after 'on-hold' status.
 	 *
-	 * @version	1.0.0
 	 * @since 	1.0.0
      * @param   array $order_statuses
 	 * @return 	void
@@ -314,7 +328,7 @@ class Dropshipping_Supplier
 	}
 
 	/**
-	 *
+	 * Add settings page
 	 *
 	 * @since 	1.0.0
 	 * @return 	void
