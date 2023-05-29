@@ -212,7 +212,7 @@ class Dropshipping_Supplier
 	 * @since 	1.0.0
 	 * @return 	void
 	 */
-    public function add_custom_order_status()
+    public static function add_custom_order_status()
     {
         $found    = false;
         $statuses = wc_get_order_statuses();
