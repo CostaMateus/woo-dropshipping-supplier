@@ -146,9 +146,13 @@ class Dropshipping_Supplier
 
         foreach ( $orders as $order )
         {
-            $order->update_meta_data( "_woo_ds_supplier_status_shipped", true );
-            $order->update_status( "processing" );
-            $order->save();
+			$order = ( is_a( $order, "WC_Order_Refund" ) ) ? wc_get_order( $order->get_parent_id() ) : $order;
+
+			if ( !$order ) continue;
+
+			$order->update_meta_data( "_woo_ds_supplier_status_shipped", true );
+			$order->update_status( "processing" );
+			$order->save();
         }
 
         remove_role( "shopkeeper" );
@@ -204,7 +208,8 @@ class Dropshipping_Supplier
 	 */
     public function add_filters()
     {
-        add_filter( "wc_order_statuses", [ $this, "add_shipped_to_order_statuses" ] );
+        add_filter( "wc_order_statuses",                                    [ $this, "add_shipped_to_order_statuses" ] );
+		add_filter( "plugin_action_links_" . plugin_basename( self::FILE ), [ $this, "plugin_action_links"           ] );
     }
 
 	/**
@@ -313,6 +318,23 @@ class Dropshipping_Supplier
 
         return $new_order_statuses;
     }
+
+	/**
+	 * Action links.
+	 *
+	 * @since 	1.0.0
+	 * @param 	array $links
+	 * @return 	array
+	 */
+	public static function plugin_action_links( $links )
+    {
+        $url            = esc_url( admin_url( "admin.php?page=" . self::DOMAIN ) );
+        $text           = __( "Settings", self::DOMAIN );
+		$plugin_links   = [];
+		$plugin_links[] = "<a href='{$url}' >{$text}</a>";
+
+		return array_merge( $plugin_links, $links );
+	}
 
 	/**
 	 * Add submenu on WP Settings menu
