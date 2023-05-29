@@ -165,7 +165,7 @@ class Dropshipping_Supplier
 	 */
 	public static function missing_notice_woo()
 	{
-		require_once dirname( self::FILE ) . "/templates/notices/missing-woo.php";
+		require_once( dirname( self::FILE ) . "/templates/notices/missing-woo.php" );
 	}
 
 	/**
@@ -177,7 +177,7 @@ class Dropshipping_Supplier
 	 */
 	public static function missing_notice_ecfb()
 	{
-		require_once dirname( self::FILE ) . "/templates/notices/missing-ecfb.php";
+		require_once( dirname( self::FILE ) . "/templates/notices/missing-ecfb.php" );
 	}
 
 	/**
