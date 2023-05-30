@@ -1,0 +1,16 @@
+.order-status.status-shipped {
+    background-color: #C6D9D6;
+    color: #436433;
+}
+
+.dashicons.dashicons-update.spin {
+    animation: spin 1s infinite;
+    animation-timing-function: linear;
+    display: none;
+    margin: 3.6px 0;
+}
+
+@keyframes spin {
+    0%   { transform: rotate( 0deg   ); }
+    100% { transform: rotate( 360deg ); }
+}
