@@ -22,7 +22,6 @@
                 data : {
                     action : "generate_secret",
                     id     : user_id,
-                    url    : $( "#woo_ds_domain" ).val(),
                 },
                 success: function( response ) {
                     $( "#new_key" ).css( "display", "block" );
