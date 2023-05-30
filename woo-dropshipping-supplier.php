@@ -189,17 +189,17 @@ class Dropshipping_Supplier
 	 */
     public function add_actions()
     {
-        add_action( "init",                     [ $this, "add_custom_order_status"              ]     );
-		add_action( "admin_menu",               [ $this, "add_admin_menu"                       ], 9  );
-        add_action( "admin_enqueue_scripts",    [ $this, "add_admin_style_script"               ]     );
+        add_action( "init",                     [ $this, "add_custom_order_status"   ]     );
+		add_action( "admin_menu",               [ $this, "add_admin_menu"            ], 9  );
+        add_action( "admin_enqueue_scripts",    [ $this, "add_admin_style_script"    ]     );
 
-		add_action( "show_user_profile",        [ $this, "extra_shopkeeper_profile_fields"      ], 12 );
-		add_action( "edit_user_profile",        [ $this, "extra_shopkeeper_profile_fields"      ], 12 );
+		add_action( "show_user_profile",        [ $this, "extra_profile_fields"      ], 12 );
+		add_action( "edit_user_profile",        [ $this, "extra_profile_fields"      ], 12 );
 
-		add_action( "personal_options_update",  [ $this, "save_extra_shopkeeper_profile_fields" ]     );
-		add_action( "edit_user_profile_update", [ $this, "save_extra_shopkeeper_profile_fields" ]     );
+		add_action( "personal_options_update",  [ $this, "save_extra_profile_fields" ]     );
+		add_action( "edit_user_profile_update", [ $this, "save_extra_profile_fields" ]     );
 
-		add_action( "wp_ajax_generate_secret",  [ $this, "generate_secret"                      ]     );
+		add_action( "wp_ajax_generate_secret",  [ $this, "generate_secret"           ]     );
     }
 
 	/**
@@ -424,7 +424,7 @@ class Dropshipping_Supplier
 	 * @param 	object $user
 	 * @return 	void
 	 */
-	public static function extra_shopkeeper_profile_fields( $user )
+	public static function extra_profile_fields( $user )
 	{
 		if ( in_array( "shopkeeper", $user->roles ) )
 			require_once( dirname( self::FILE ) . "/templates/admin/shopkeeper-profile.php" );
@@ -437,7 +437,7 @@ class Dropshipping_Supplier
 	 * @param 	string $user_id
 	 * @return 	void
 	 */
-	public static function save_extra_shopkeeper_profile_fields( $user_id )
+	public static function save_extra_profile_fields( $user_id )
 	{
 		$empty  = empty( $_POST[ "_wpnonce" ] );
 		$verify = !wp_verify_nonce( $_POST[ "_wpnonce" ], "update-user_" . $user_id );
