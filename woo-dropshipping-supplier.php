@@ -212,7 +212,9 @@ class Dropshipping_Supplier
     {
         add_filter( "wc_order_statuses",                                    [ $this, "add_shipped_to_order_statuses" ] );
 		add_filter( "plugin_action_links_" . plugin_basename( self::FILE ), [ $this, "plugin_action_links"           ] );
-    }
+		add_filter( "manage_users_columns",                                 [ $this, "add_column_title_user"         ] );
+		add_filter( "manage_users_custom_column",                           [ $this, "add_column_content_user"       ], 10, 3 );
+	}
 
 	/**
 	 * Create the status 'wc-shipped'.
@@ -346,6 +348,68 @@ class Dropshipping_Supplier
 		$plugin_links[] = "<a href='{$url}' >{$text}</a>";
 
 		return array_merge( $plugin_links, $links );
+	}
+
+	/**
+	 * Adds 'DSM Key' column header to 'Users' page immediately after 'Role' column.
+	 *
+	 * @since 	1.0.0
+	 * @param 	array 	$columns
+	 * @return 	array 	$new_columns
+	 */
+	public function add_column_title_user( $columns )
+	{
+		if ( isset( $_GET[ "role" ] ) )
+		{
+			$new_columns = [];
+
+			foreach ( $columns as $column_name => $column_info )
+			{
+				$new_columns[ $column_name ] = $column_info;
+				$name                        = self::DOMAIN . "_user_key";
+
+				if ( "role" === $column_name )
+					$new_columns[ $name ] = "DSM Key";
+			}
+
+			return $new_columns;
+		}
+
+		return $columns;
+	}
+
+	/**
+	 * Adds 'DSM Key' column content to 'Users' page immediately after 'Role' column.
+	 *
+	 * @since 	1.0.0
+	 * @param 	array 	$column name of column being displayed
+	 */
+	function add_column_content_user( $val, $column, $user_id )
+	{
+		if ( isset( $_GET[ "role" ] ) )
+		{
+			$name = self::DOMAIN . "_user_key";
+
+			if ( $name === $column )
+			{
+				$key = get_user_meta( $user_id, "_shopkeeper_secret", true );
+
+				if ( $key )
+				{
+					$text  = translate( "Done", self::DOMAIN );
+					$class = "status-processing";
+				}
+				else
+				{
+					$text  = translate( "Missing key", self::DOMAIN );
+					$class = "status-on-hold";
+				}
+
+				return "<mark class='order-status {$class}'><span>{$text}</span></mark>";
+			}
+		}
+
+		return $val;
 	}
 
 	/**
