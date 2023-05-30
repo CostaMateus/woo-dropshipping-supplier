@@ -446,9 +446,7 @@ class Dropshipping_Supplier
 
 		if ( !current_user_can( "edit_user", $user_id ) ) return false;
 
-		update_user_meta( $user_id, "address",    $_POST[ "address"    ] );
-		update_user_meta( $user_id, "city",       $_POST[ "city"       ] );
-		update_user_meta( $user_id, "postalcode", $_POST[ "postalcode" ] );
+		update_user_meta( $user_id, "_shopkeeper_url", $_POST[ "woo_ds_website" ] );
 	}
 
 	/**
@@ -488,7 +486,6 @@ class Dropshipping_Supplier
 		$pass    = "{$user->ID}|{$user->user_email}|{$url_sp}|{$url}";
 		$secret  = password_hash( $pass, PASSWORD_BCRYPT, [ "cost" => $cost ] );
 
-		update_user_meta( $user->ID, "_shopkeeper_url",    "http:example.com" );
 		update_user_meta( $user->ID, "_shopkeeper_secret", $secret );
 
 		return wp_send_json_success( $secret );
