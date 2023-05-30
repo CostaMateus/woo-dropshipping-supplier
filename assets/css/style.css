@@ -4,8 +4,8 @@
 }
 
 .dashicons.dashicons-update.spin {
-    animation: spin 1s infinite;
     animation-timing-function: linear;
+    animation: spin 1s infinite;
     display: none;
     margin: 3.6px 0;
 }
@@ -13,4 +13,18 @@
 @keyframes spin {
     0%   { transform: rotate( 0deg   ); }
     100% { transform: rotate( 360deg ); }
+}
+
+#set_key_error {
+    font-weight: bold;
+    padding-top: 10px;
+    display: none;
+    color: #e65054;
+}
+
+#key_set {
+    font-weight: bold;
+    padding-top: 10px;
+    display: block;
+    color: #489B56;
 }
