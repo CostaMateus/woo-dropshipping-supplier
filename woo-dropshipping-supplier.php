@@ -191,13 +191,15 @@ class Dropshipping_Supplier
     {
         add_action( "init",                     [ $this, "add_custom_order_status"              ]     );
 		add_action( "admin_menu",               [ $this, "add_admin_menu"                       ], 9  );
-        add_action( "admin_enqueue_scripts",    [ $this, "add_admin_style"                      ]     );
+        add_action( "admin_enqueue_scripts",    [ $this, "add_admin_style_script"               ]     );
 
 		add_action( "show_user_profile",        [ $this, "extra_shopkeeper_profile_fields"      ], 12 );
 		add_action( "edit_user_profile",        [ $this, "extra_shopkeeper_profile_fields"      ], 12 );
 
 		add_action( "personal_options_update",  [ $this, "save_extra_shopkeeper_profile_fields" ]     );
 		add_action( "edit_user_profile_update", [ $this, "save_extra_shopkeeper_profile_fields" ]     );
+
+		add_action( "wp_ajax_generate_secret",  [ $this, "generate_secret"                      ]     );
     }
 
 	/**
@@ -289,12 +291,22 @@ class Dropshipping_Supplier
 	 * @since 	1.0.0
 	 * @return 	void
      */
-    public function add_admin_style()
+    public function add_admin_style_script()
     {
 		$suffix   = defined( "SCRIPT_DEBUG" ) && SCRIPT_DEBUG ? "" : ".min";
-		$css_path = "assets/css/admin/style{$suffix}.css";
+		$css_path = "assets/css/style{$suffix}.css";
 		$css_ver  = date( "ymdHis", filemtime( plugin_dir_path( self::FILE ) . $css_path ) );
-		wp_enqueue_style( self::DOMAIN . "_admin_css", plugins_url( $css_path, self::FILE ), false, $css_ver, "all" );
+		wp_enqueue_style( self::DOMAIN . "_css_js", plugins_url( $css_path, self::FILE ), false, $css_ver, "all" );
+
+		$js_path  = "assets/js/script{$suffix}.js";
+		$js_ver   = date( "ymdHis", filemtime( plugin_dir_path( self::FILE ) . $js_path ) );
+		wp_enqueue_script( self::DOMAIN . "_css_js", plugins_url( $js_path, self::FILE ), [ "json2", "jquery" ], $js_ver, true );
+
+		wp_localize_script(
+			self::DOMAIN . "_css_js",
+			self::DOMAIN . "_params",
+			[ "ajax_url" => admin_url( "admin-ajax.php" ), ]
+		);
     }
 
 	/**
@@ -414,7 +426,8 @@ class Dropshipping_Supplier
 	 */
 	public static function extra_shopkeeper_profile_fields( $user )
 	{
-		require_once( dirname( self::FILE ) . "/templates/admin/shopkeeper-profile.php" );
+		if ( in_array( "shopkeeper", $user->roles ) )
+			require_once( dirname( self::FILE ) . "/templates/admin/shopkeeper-profile.php" );
 	}
 
 	/**
@@ -436,5 +449,48 @@ class Dropshipping_Supplier
 		update_user_meta( $user_id, "address",    $_POST[ "address"    ] );
 		update_user_meta( $user_id, "city",       $_POST[ "city"       ] );
 		update_user_meta( $user_id, "postalcode", $_POST[ "postalcode" ] );
+	}
+
+	/**
+	 * Generate secret for shopkeeper
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function generate_secret()
+	{
+		$user_id = $_POST[ "id"  ];
+
+		if ( !$user_id )
+		{
+			$message = translate( "Invalid shopkeeper's ID.", self::DOMAIN );
+			return wp_send_json_error( $message, 400 );
+		}
+
+		$url_sp  = get_user_meta( $user_id, "_shopkeeper_url", true );
+
+		if ( !$url_sp )
+		{
+			$message = translate( "Invalid shopkeeper's URL. Fill in the 'website' field and save.", self::DOMAIN );
+			return wp_send_json_error( $message, 400 );
+		}
+
+		$user    = get_user_by( "id", $user_id );
+
+		if ( !in_array( "shopkeeper", $user->roles ) )
+		{
+			$message = translate( "The current user is not a shopkeeper.", self::DOMAIN );
+			return wp_send_json_error( $message, 400 );
+		}
+
+		$url     = get_home_url();
+		$cost    = get_option( "woo_ds_hash_cost" );
+		$pass    = "{$user->ID}|{$user->user_email}|{$url_sp}|{$url}";
+		$secret  = password_hash( $pass, PASSWORD_BCRYPT, [ "cost" => $cost ] );
+
+		update_user_meta( $user->ID, "_shopkeeper_url",    "http:example.com" );
+		update_user_meta( $user->ID, "_shopkeeper_secret", $secret );
+
+		return wp_send_json_success( $secret );
 	}
 }
