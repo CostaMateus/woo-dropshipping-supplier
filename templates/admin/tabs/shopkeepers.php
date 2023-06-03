@@ -12,7 +12,7 @@ $url = esc_url( admin_url( "users.php?role=shopkeeper" ) );
 ?>
 
 <section>
-	<h2><?php _e( "List of shopkeepers", Dropshipping_Supplier::DOMAIN ); ?></h2>
+	<h2><?php _e( "List of shopkeepers", "woo_ds_supplier" ); ?></h2>
 
-	<p><a href="<?php echo $url; ?>" ><?php _e( "Click here", Dropshipping_Supplier::DOMAIN ); ?></a></p>
+	<p><a href="<?php echo $url; ?>" ><?php _e( "Click here", "woo_ds_supplier" ); ?></a></p>
 </section>

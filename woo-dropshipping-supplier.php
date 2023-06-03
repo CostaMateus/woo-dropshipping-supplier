@@ -342,8 +342,8 @@ class Dropshipping_Supplier
 	 */
 	public static function plugin_action_links( $links )
     {
-        $url            = esc_url( admin_url( "admin.php?page=" . self::DOMAIN ) );
-        $text           = __( "Settings", self::DOMAIN );
+        $url            = esc_url( admin_url( "admin.php?page=" . "woo_ds_supplier" ) );
+        $text           = __( "Settings", "woo_ds_supplier" );
 		$plugin_links   = [];
 		$plugin_links[] = "<a href='{$url}' >{$text}</a>";
 
@@ -396,12 +396,12 @@ class Dropshipping_Supplier
 
 				if ( $key )
 				{
-					$text  = translate( "Done", self::DOMAIN );
+					$text  = translate( "Done", "woo_ds_supplier" );
 					$class = "status-processing";
 				}
 				else
 				{
-					$text  = translate( "Missing key", self::DOMAIN );
+					$text  = translate( "Missing key", "woo_ds_supplier" );
 					$class = "status-on-hold";
 				}
 
@@ -470,7 +470,7 @@ class Dropshipping_Supplier
 		switch ( $error_message )
 		{
 			case "1":
-				$message       = __( "There was an error adding this setting. Please try again. If this persists, shoot us an email.", self::DOMAIN );
+				$message       = __( "There was an error adding this setting. Please try again. If this persists, shoot us an email.", "woo_ds_supplier" );
 				$err_code      = esc_attr( "woo_ds_supplier-example-setting" );
 				$setting_field = "woo_ds_supplier_example_setting";
 			break;
@@ -525,7 +525,7 @@ class Dropshipping_Supplier
 
 		if ( !$user_id )
 		{
-			$message = translate( "Invalid shopkeeper's ID.", self::DOMAIN );
+			$message = translate( "Invalid shopkeeper's ID.", "woo_ds_supplier" );
 			return wp_send_json_error( $message, 400 );
 		}
 
@@ -533,7 +533,7 @@ class Dropshipping_Supplier
 
 		if ( !$url_sp )
 		{
-			$message = translate( "Invalid shopkeeper's URL. Fill in the 'website' field and save.", self::DOMAIN );
+			$message = translate( "Invalid shopkeeper's URL. Fill in the 'website' field and save.", "woo_ds_supplier" );
 			return wp_send_json_error( $message, 400 );
 		}
 		else
@@ -542,7 +542,7 @@ class Dropshipping_Supplier
 
 			if ( !in_array( "shopkeeper", $user->roles ) )
 			{
-				$message = translate( "The current user is not a shopkeeper.", self::DOMAIN );
+				$message = translate( "The current user is not a shopkeeper.", "woo_ds_supplier" );
 				return wp_send_json_error( $message, 400 );
 			}
 
