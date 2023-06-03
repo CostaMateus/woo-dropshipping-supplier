@@ -536,22 +536,24 @@ class Dropshipping_Supplier
 			$message = translate( "Invalid shopkeeper's URL. Fill in the 'website' field and save.", self::DOMAIN );
 			return wp_send_json_error( $message, 400 );
 		}
-
-		$user    = get_user_by( "id", $user_id );
-
-		if ( !in_array( "shopkeeper", $user->roles ) )
+		else
 		{
-			$message = translate( "The current user is not a shopkeeper.", self::DOMAIN );
-			return wp_send_json_error( $message, 400 );
+			$user    = get_user_by( "id", $user_id );
+
+			if ( !in_array( "shopkeeper", $user->roles ) )
+			{
+				$message = translate( "The current user is not a shopkeeper.", self::DOMAIN );
+				return wp_send_json_error( $message, 400 );
+			}
+
+			$url     = get_home_url();
+			$cost    = get_option( "woo_ds_hash_cost" );
+			$pass    = "{$user->ID}|{$user->user_email}|{$url_sp}|{$url}";
+			$secret  = password_hash( $pass, PASSWORD_BCRYPT, [ "cost" => $cost ] );
+
+			update_user_meta( $user->ID, "_shopkeeper_secret", $secret );
+
+			return wp_send_json_success( $secret );
 		}
-
-		$url     = get_home_url();
-		$cost    = get_option( "woo_ds_hash_cost" );
-		$pass    = "{$user->ID}|{$user->user_email}|{$url_sp}|{$url}";
-		$secret  = password_hash( $pass, PASSWORD_BCRYPT, [ "cost" => $cost ] );
-
-		update_user_meta( $user->ID, "_shopkeeper_secret", $secret );
-
-		return wp_send_json_success( $secret );
 	}
 }
