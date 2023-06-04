@@ -155,8 +155,10 @@ class Dropshipping_Supplier
 			$order->save();
         }
 
-        remove_role( "shopkeeper" );
-		delete_option( "woo_ds_hash_cost" );
+		self::remove_role_from_users();
+        self::remove_role();
+		self::remove_hash();
+		self::remove_users_meta();
     }
 
 	/**
@@ -265,6 +267,38 @@ class Dropshipping_Supplier
     }
 
 	/**
+	 * Remove user from role 'shopkeeper'
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public static function remove_role_from_users()
+	{
+		$args = [
+			"role"  => "shopkeeper",
+			"order" => "ASC"
+		];
+
+		$users = get_users( $args );
+
+		foreach ( $users as $user ) $user->remove_role( "shopkeeper" );
+	}
+
+	/**
+	 * Delete the role 'shopkeeper'.
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public static function remove_role()
+	{
+		$shopkeeper = get_role( "shopkeeper" );
+		$caps       = $shopkeeper->capabilities;
+
+		foreach ( $caps as $cap ) $shopkeeper->remove_cap( $cap );
+	}
+
+	/**
 	 * Calculates and saves, the maximum cost for the hash
 	 *
 	 * @since 	1.0.0
@@ -285,6 +319,29 @@ class Dropshipping_Supplier
 		while ( ( $e - $s ) < $t );
 
 		add_option( "woo_ds_hash_cost", $c, "", "no" );
+	}
+
+	/**
+	 * Delete option hash cost
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public static function remove_hash()
+	{
+		delete_option( "woo_ds_hash_cost" );
+	}
+
+	/**
+	 * Delete users meta url and secret
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public static function remove_users_meta()
+	{
+		delete_metadata( "user", 0, "_shopkeeper_url",    "", true );
+		delete_metadata( "user", 0, "_shopkeeper_secret", "", true );
 	}
 
     /**
