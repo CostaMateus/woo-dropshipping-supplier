@@ -58,7 +58,7 @@ defined("ABSPATH") || exit;
                 <span class="description" ><?php _e( "Secret key copied to clipboard.", "woo_ds_supplier" ); ?></span>
             </div>
 
-            <?php if ( get_the_author_meta( "_shopkeeper_url", $user->ID ) ) : ?>
+            <?php if ( get_the_author_meta( "_shopkeeper_secret", $user->ID ) ) : ?>
                 <span id="key_set" class="description" ><?php _e( "This user already have a secret key set.", "woo_ds_supplier" ); ?></span>
             <?php endif; ?>
         </td>
