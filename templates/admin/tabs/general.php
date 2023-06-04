@@ -8,4 +8,8 @@
  */
 defined( "ABSPATH" ) || exit;
 
-echo "General";
+?>
+
+<section>
+	<h2><?php _e( "General", "woo_ds_supplier" ); ?></h2>
+</section>
