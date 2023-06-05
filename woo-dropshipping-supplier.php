@@ -6,14 +6,15 @@
  * Author URI:           https://costamateus.com.br/
  * Version:              1.0.0
  * Text Domain:          woo_ds_supplier
- * RequiresPHP:          7.4
- * RequiresWP:           6.0
+ * Requires at least:    6.0
+ * Requires PHP:         7.3
  * WC requires at least: 6.3
  * WC tested up to:      6.3
  *
  * @package 			 Dropshipping_Supplier
  * @version 			 1.0.0
  */
+
 defined( "ABSPATH" ) || exit;
 
 register_activation_hook(   __FILE__, [ "Dropshipping_Supplier", "on_activation"   ] );
@@ -416,7 +417,7 @@ class Dropshipping_Supplier
 	 */
 	public function add_column_title_user( $columns )
 	{
-		if ( isset( $_GET[ "role" ] ) )
+		if ( isset( $_GET[ "role" ] ) && $_GET[ "role" ] === "shopkeeper" )
 		{
 			$new_columns = [];
 
@@ -443,7 +444,7 @@ class Dropshipping_Supplier
 	 */
 	function add_column_content_user( $val, $column, $user_id )
 	{
-		if ( isset( $_GET[ "role" ] ) )
+		if ( isset( $_GET[ "role" ] ) && $_GET[ "role" ] === "shopkeeper" )
 		{
 			$name = self::DOMAIN . "_user_key";
 

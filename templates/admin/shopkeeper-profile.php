@@ -5,10 +5,11 @@
  * This file is used to markup the admin-facing aspects of the plugin.
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
- * @package 	Dropshipping_Supplier
+ * @package 	Dropshipping_Supplier\Templates\Admin
  * @version 	1.0.0
  */
-defined("ABSPATH") || exit;
+
+defined( "ABSPATH" ) || exit;
 
 // Modulo Supplier
 // Id spk | Email spk | URL spk | URL supplier

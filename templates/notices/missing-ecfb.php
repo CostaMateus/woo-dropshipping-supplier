@@ -3,9 +3,10 @@
  * Missing ECFB notice
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
- * @package 	Dropshipping_Supplier/Notices
+ * @package 	Dropshipping_Supplier\Templates\Notices
  * @version 	1.0.0
  */
+
 defined( "ABSPATH" ) || exit;
 
 $is_installed = false;
