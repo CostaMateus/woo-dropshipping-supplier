@@ -275,7 +275,7 @@ class Dropshipping_Supplier
 	 */
 	public static function remove_role_from_users()
 	{
-		$args = [
+		$args  = [
 			"role"  => "shopkeeper",
 			"order" => "ASC"
 		];
@@ -484,7 +484,7 @@ class Dropshipping_Supplier
 			'manage_options',
 			self::DOMAIN,
 			[ $this, "display_admin_menu" ],
-			plugins_url( "assets/images/supplier.png", self::FILE ),
+			plugins_url( "assets/images/dsm.png", self::FILE ),
             65
 		);
 	}
