@@ -17,7 +17,7 @@
             error.css( "display", "none" ).html( "" );
 
             $.ajax( {
-                url  : woo_ds_supplier_params.ajax_url,
+                url  : woo_dsm_params.ajax_url,
                 type : "POST",
                 data : {
                     action : "generate_secret",
