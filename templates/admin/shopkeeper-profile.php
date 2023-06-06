@@ -19,17 +19,15 @@ defined( "ABSPATH" ) || exit;
 
 ?>
 
-<h3><?php _e( "Dropshipping Shopkeeper Settings", "woo_ds_supplier" ); ?></h3>
+<h3><?php _e( "DSM Settings", "woo_ds_supplier" ); ?></h3>
 
 <table class="form-table" >
     <tr>
         <th>
-            <label for="woo_ds_website" >
-                <?php _e( "Website", "woo_ds_supplier" ); ?>
-            </label>
+            <label for="woo_ds_website" ><?php _e( "Website", "woo_ds_supplier" ); ?></label>
         </th>
         <td>
-            <input type="text" name="woo_ds_website" id="woo_ds_website" value="<?php echo esc_attr( get_the_author_meta( "_shopkeeper_url", $user->ID ) ); ?>" class="regular-text" />
+            <input type="text" name="woo_ds_website" id="woo_ds_website" value="<?php echo esc_attr( get_the_author_meta( "_dsm_url", $user->ID ) ); ?>" class="regular-text" />
             <br>
             <span class="description" ><?php _e( "Please enter the full URL of the shopkeeper's website.", "woo_ds_supplier" ); ?></span>
         </td>
@@ -59,9 +57,15 @@ defined( "ABSPATH" ) || exit;
                 <span class="description" ><?php _e( "Secret key copied to clipboard.", "woo_ds_supplier" ); ?></span>
             </div>
 
-            <?php if ( get_the_author_meta( "_shopkeeper_secret", $user->ID ) ) : ?>
+            <?php if ( get_the_author_meta( "_dsm_secret", $user->ID ) ) : ?>
                 <span id="key_set" class="description" ><?php _e( "This user already have a secret key set.", "woo_ds_supplier" ); ?></span>
             <?php endif; ?>
+        </td>
+    </tr>
+    <tr>
+        <th><label for="woo_ds_external"><?php _e( "Secret key from shopkeeper", "woo_ds_supplier" ); ?></label></th>
+        <td>
+            <input type="password" name="woo_ds_external" id="woo_ds_external" value="<?php echo esc_attr( get_the_author_meta( "_dsm_secret_s", $user->ID ) ); ?>" class="regular-text" />
         </td>
     </tr>
 </table>
