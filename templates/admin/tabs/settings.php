@@ -1,6 +1,6 @@
 <?php
 /**
- * Settings view
+ * Settings tab view
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
  * @package 	Dropshipping_Supplier\Templates\Admin\Tabs

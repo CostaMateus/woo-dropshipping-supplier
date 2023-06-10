@@ -1,6 +1,6 @@
 <?php
 /**
- * General view
+ * General tab view
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
  * @package 	Dropshipping_Supplier\Templates\Admin\Tabs
