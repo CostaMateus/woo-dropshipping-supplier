@@ -3,11 +3,11 @@
  * Users table class.
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
- * @package 	Dropshipping_Shopkeeper\Classes\Tables
+ * @package 	Dropshipping_Supplier\Classes\Tables
  * @version 	1.0.0
  */
 
-namespace Dropshipping_Shopkeeper\Classes\Tables;
+namespace Dropshipping_Supplier\Classes\Tables;
 
 class DSM_Users_table extends \WP_List_Table
 {
@@ -44,7 +44,7 @@ class DSM_Users_table extends \WP_List_Table
         ] );
 
 		$this->users    = get_users( [
-			"role"  => "supplier",
+			"role"  => "shopkeeper",
 			"order" => "ASC"
 		] );
 
@@ -289,7 +289,7 @@ class DSM_Users_table extends \WP_List_Table
                 )
             );
 
-            $actions[ "edit" ] = "<a href='{$edit_link}'>" . __( "Edit",   "woo_ds_shopkeeper" ) . "</a>";
+            $actions[ "edit" ] = "<a href='{$edit_link}'>" . __( "Edit", "woo_ds_supplier" ) . "</a>";
             $username          = "<strong><a href='{$edit_link}'>{$username}</a></strong>";
         }
 
@@ -423,7 +423,7 @@ class DSM_Users_table extends \WP_List_Table
             {
                 foreach ( $this->orders as $order )
                 {
-                    $meta_id = $order->get_meta( "_dsm_supplier" );
+                    $meta_id = $order->get_meta( "_dsm_shopkeeper" ); //Get ID of shopkeeper
 
                     if ( !empty( $meta_id ) && $meta_id == $user_id )
                         $order->delete( true );

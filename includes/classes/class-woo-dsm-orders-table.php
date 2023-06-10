@@ -3,11 +3,11 @@
  * Orders table class.
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
- * @package 	Dropshipping_Shopkeeper\Classes\Tables
+ * @package 	Dropshipping_Supplier\Classes\Tables
  * @version 	1.0.0
  */
 
-namespace Dropshipping_Shopkeeper\Classes\Tables;
+namespace Dropshipping_Supplier\Classes\Tables;
 
 class DSM_Orders_table extends \WP_List_Table
 {
