@@ -80,8 +80,10 @@ class Dropshipping_Supplier
 
         if ( $has_missing ) return;
 
+		$this->add_requires();
         $this->add_actions();
         $this->add_filters();
+		$this->add_classes();
     }
 
 	/**
@@ -185,6 +187,25 @@ class Dropshipping_Supplier
 	}
 
 	/**
+	 * Init plugin dependency classes.
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function add_requires()
+	{
+		if ( !class_exists( "WP_List_Table" ) )
+			require_once( ABSPATH . "wp-admin/includes/class-wp-list-table.php" );
+
+		add_action( "admin_footer", function () {
+			require_once( dirname( self::FILE ) . "/templates/load.php" );
+		} );
+
+		require_once( dirname( self::FILE ) . "/includes/rest-api/Utilities/SingletonTrait.php" );
+		require_once( dirname( self::FILE ) . "/includes/rest-api/Server.php" );
+	}
+
+	/**
 	 * Init plugin actions.
 	 *
 	 * @since 	1.0.0
@@ -192,7 +213,9 @@ class Dropshipping_Supplier
 	 */
     public function add_actions()
     {
+		add_action( "init",                     [ $this, "load_rest_api"             ]     );
         add_action( "init",                     [ $this, "add_custom_order_status"   ]     );
+
 		add_action( "admin_menu",               [ $this, "add_admin_menu"            ], 9  );
         add_action( "admin_enqueue_scripts",    [ $this, "add_admin_style_script"    ]     );
 
@@ -217,6 +240,29 @@ class Dropshipping_Supplier
 		add_filter( "plugin_action_links_" . plugin_basename( self::FILE ), [ $this, "plugin_action_links"           ] );
 		add_filter( "manage_users_columns",                                 [ $this, "add_column_title_user"         ] );
 		add_filter( "manage_users_custom_column",                           [ $this, "add_column_content_user"       ], 10, 3 );
+	}
+
+	/**
+	 * Init plugin needed classes.
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function add_classes()
+	{
+		require_once( dirname( self::FILE ) . "/includes/classes/class-woo-dsm-orders-table.php" );
+		require_once( dirname( self::FILE ) . "/includes/classes/class-woo-dsm-users-table.php"  );
+	}
+
+	/**
+	 * Load REST API.
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public function load_rest_api()
+	{
+		\Dropshipping_Supplier\RestApi\Server::instance()->init();
 	}
 
 	/**
@@ -366,7 +412,14 @@ class Dropshipping_Supplier
 		wp_localize_script(
 			"woo_dsm_css_js",
 			"woo_dsm_params",
-			[ "ajax_url" => admin_url( "admin-ajax.php" ), ]
+			[
+				"ajax_url" => admin_url( "admin-ajax.php" ),
+				"messages" => [
+					"del_users"    => __( "This action will delete the selected shopkeeper user as well as all of its orders. Click OK to confirm this action.", "woo_ds_supplier" ),
+					"del_orders"   => __( "This action will delete all orders from the selected shopkeeper. Click OK to confirm this action.", "woo_ds_supplier" ),
+					"select_users" => __( "Please select at least one shopkeeper, for any action.", "woo_ds_supplier" ),
+				]
+			]
 		);
     }
 
@@ -508,7 +561,8 @@ class Dropshipping_Supplier
 
 		$tabs = [
 			"general"     => "General",
-			"shopkeepers" => "List of shopkeepers",
+			"shopkeepers" => "Shopkeepers",
+			"orders"      => "Orders",
 			"settings"    => "Settings",
 			"tools"       => "Tools",
 		];
