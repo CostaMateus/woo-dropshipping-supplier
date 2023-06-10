@@ -29,6 +29,7 @@
                     span.css( "display", "none" );
                 },
                 error: function( err ) {
+                    console.log( err );
                     error.css( "display", "block" ).html( err.responseJSON.data );
                     span.css( "display", "none" );
                 },
@@ -49,5 +50,61 @@
 
             return false;
         } );
+
+        $( "#doaction"  ).click( function ( e ) {
+            const action = $( "#bulk-action-selector-top"    ).val();
+            preventSubmitBulkActions( e, action );
+        } );
+
+        $( "#doaction2" ).click( function ( e ) {
+            const action = $( "#bulk-action-selector-bottom" ).val();
+            preventSubmitBulkActions( e, action );
+        } );
+
+        function preventSubmitBulkActions( e, a )
+        {
+            const query  = window.location.search;
+            const params = new URLSearchParams( query );
+
+            const page   = params.has( "page" ) ? params.get( "page" ) : 0;
+            if ( page == 0 || page != "woo_ds_suppliers" ) return;
+
+            const tab    = params.has( "tab" ) ? params.get( "tab" ) : 0;
+            if ( tab  == 0 || tab  != "shopkeepers" ) return;
+
+            e.preventDefault();
+
+            const users = $( '#dsm-users-list-table-form input[name^="users"]:checked' );
+
+            if ( a == "-1" ) return;
+
+            if ( users.length == 0 )
+            {
+                alert( woo_dsm_params.messages.select_users );
+                return;
+            }
+
+            if ( a == "del_users" )
+            {
+                if ( confirm( woo_dsm_params.messages.del_users ) )
+                {
+                    $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
+                    $( "#dsm-users-list-table-form" ).submit();
+                }
+            }
+            else if ( a == "del_products" )
+            {
+                if ( confirm( woo_dsm_params.messages.del_products ) )
+                {
+                    $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
+                    $( "#dsm-users-list-table-form" ).submit();
+                }
+            }
+            else
+            {
+                $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
+                $( "#dsm-users-list-table-form" ).submit();
+            }
+        }
     } );
 }( jQuery ) );
