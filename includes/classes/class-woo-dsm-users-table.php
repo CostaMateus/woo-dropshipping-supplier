@@ -136,14 +136,14 @@ class DSM_Users_table extends \WP_List_Table
      */
     public function get_bulk_actions()
     {
-        // $actions = [
-        //     "sync"         => __( "Sync stock",       "woo_ds_shopkeeper" ),
-        //     "import"       => __( "Import products",  "woo_ds_shopkeeper" ),
-        //     "del_products" => __( "Delete products",  "woo_ds_shopkeeper" ),
-        //     "del_users"    => __( "Delete suppliers", "woo_ds_shopkeeper" )
-        // ];
+        $actions = [
+            // "sync"         => __( "Sync stock",       "woo_ds_supplier" ),
+            // "import"       => __( "Import products",  "woo_ds_supplier" ),
+            "del_orders" => __( "Delete orders",    "woo_ds_supplier" ),
+            "del_users"  => __( "Delete suppliers", "woo_ds_supplier" )
+        ];
 
-        return []; // $actions;
+        return $actions;
     }
 
     /**
@@ -217,16 +217,16 @@ class DSM_Users_table extends \WP_List_Table
 
         switch ( $action )
         {
-            case "sync":
-                $this->process_b_a_sync();
-            break;
+            // case "sync":
+            //     $this->process_b_a_sync();
+            // break;
+            //
+            // case "import":
+            //     $this->process_b_a_import();
+            // break;
 
-            case "import":
-                $this->process_b_a_import();
-            break;
-
-            case "del_products":
-                $this->process_b_a_del_products();
+            case "del_orders":
+                $this->process_b_a_del_orders();
             break;
 
             case "del_users":
@@ -360,7 +360,7 @@ class DSM_Users_table extends \WP_List_Table
      * @param   array|object $item
      * @return  string
      */
-    public function column_products( $item )
+    public function column_orders( $item )
     {
         $link = $item->qty_orders;
 
@@ -374,6 +374,7 @@ class DSM_Users_table extends \WP_List_Table
     }
 
     /**
+     * Extra infos on top or bottom of the table
      *
      * @since   1.0.0
      * @return  void
@@ -385,26 +386,6 @@ class DSM_Users_table extends \WP_List_Table
 
         // if ( $which == "bottom" )
         //     echo"Hi, I'm after the table";
-    }
-
-    /**
-     *
-     * @since   1.0.0
-     * @return  void
-     */
-    public function process_b_a_sync()
-    {
-
-    }
-
-    /**
-     *
-     * @since   1.0.0
-     * @return  void
-     */
-    public function process_b_a_import()
-    {
-
     }
 
     /**
