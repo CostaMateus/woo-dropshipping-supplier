@@ -17,21 +17,24 @@ trait SingletonTrait
 	/**
 	 * The single instance of the class.
 	 *
-	 * @var object
+     * @since   1.0.0
+	 * @var 	object
 	 */
 	protected static $instance = null;
 
 	/**
 	 * Constructor
 	 *
-	 * @return void
+     * @since   1.0.0
+	 * @return 	void
 	 */
 	protected function __construct() {}
 
 	/**
 	 * Get class instance.
 	 *
-	 * @return object Instance.
+     * @since   1.0.0
+	 * @return 	object Instance.
 	 */
 	final public static function instance()
 	{
@@ -41,11 +44,15 @@ trait SingletonTrait
 
 	/**
 	 * Prevent cloning.
+	 *
+     * @since   1.0.0
 	 */
 	private function __clone() {}
 
 	/**
 	 * Prevent unserializing.
+	 *
+     * @since   1.0.0
 	 */
 	final public function __wakeup()
 	{

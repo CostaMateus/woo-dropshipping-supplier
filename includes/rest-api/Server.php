@@ -23,12 +23,16 @@ class Server
 	/**
 	 * REST API namespaces and endpoints.
 	 *
-	 * @var array
+     * @since   1.0.0
+	 * @var 	array
 	 */
 	protected $controllers = [];
 
 	/**
 	 * Hook into WordPress ready to init the REST API as needed.
+	 *
+     * @since   1.0.0
+	 * @return 	void
 	 */
 	public function init()
     {
@@ -39,6 +43,9 @@ class Server
 
 	/**
 	 * Register REST API routes.
+	 *
+     * @since   1.0.0
+	 * @return 	void
 	 */
 	public function register_rest_routes()
     {
@@ -55,7 +62,8 @@ class Server
 	/**
 	 * Get API namespaces - new namespaces should be registered here.
 	 *
-	 * @return array List of Namespaces and Main controller classes.
+     * @since   1.0.0
+	 * @return 	array List of Namespaces and Main controller classes.
 	 */
 	protected function get_rest_namespaces()
     {
@@ -70,7 +78,8 @@ class Server
 	/**
 	 * List of controllers in the wc/v1 namespace.
 	 *
-	 * @return array
+     * @since   1.0.0
+	 * @return 	array
 	 */
 	protected function get_v1_controllers()
     {
@@ -83,7 +92,8 @@ class Server
 	/**
 	 * Return the path to the package.
 	 *
-	 * @return string
+     * @since   1.0.0
+	 * @return 	string
 	 */
 	public static function get_path()
     {
