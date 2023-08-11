@@ -12,5 +12,11 @@ defined( "ABSPATH" ) || exit;
 ?>
 
 <section>
-	<h2><?php _e( "Settings", "woo_ds_supplier" ); ?></h2>
+	<div class="wrap-dsm" id="" >
+		<h2 class="wp-heading-inline" style="display:inline;" >
+			<?php _e( "Settings", "woo_ds_shopkeeper" ); ?>
+		</h2>
+
+		<p><?php _e( "In development!", "woo_ds_shopkeeper" ); ?></p>
+	</div>
 </section>

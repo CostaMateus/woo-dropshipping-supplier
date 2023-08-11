@@ -13,7 +13,10 @@ defined( "ABSPATH" ) || exit;
 ?>
 
 <div class="wrap" >
-	<h1 class="wp-heading-inline" ><?php echo esc_html( get_admin_page_title() ); ?></h1>
+	<div class="wrap-title" >
+		<img src="<?php echo plugins_url( "assets/images/dsm.png", Dropshipping_Supplier::FILE ); ?>" alt="DSM Logo" >
+		<h1 class="wp-heading-inline" ><?php echo esc_html( get_admin_page_title() ); ?></h1>
+	</div>
 
 	<nav class="nav-tab-wrapper" >
 		<?php
