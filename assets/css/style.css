@@ -24,7 +24,6 @@
 
 #key_set {
     font-weight: bold;
-    padding-top: 10px;
     display: block;
     color: #489B56;
 }
@@ -123,4 +122,111 @@ table.wp-list-table .column-price {
 @keyframes dsm-spin {
     0%   { transform: rotate( 0deg   ); }
     100% { transform: rotate( 360deg ); }
+}
+
+.wrap-dsm > h2:first-child {
+    margin: 0;
+    padding: 9px 0 4px;
+    font-size: 23px;
+    font-weight: 400;
+    line-height: 1.3;
+}
+
+.wrap-title {
+    width: 100%;
+    margin: 10px 0;
+}
+
+.wrap-title img {
+    width: 20px;
+    height: 20px;
+    vertical-align: bottom;
+    padding-bottom: 8px;
+}
+
+.wrap-dsm {
+    margin-top: 10px;
+}
+
+.wrap-dsm #dsm-general-form{
+    margin-top: 15px;
+}
+
+.dsm-form table.form-table {
+    margin: 0;
+    position: relative;
+    table-layout: fixed;
+}
+.dsm-form .form-table th {
+    vertical-align: top;
+    text-align: left;
+    padding: 20px 24px 20px 0;
+    width: 200px;
+    line-height: 1.3;
+    font-weight: 600;
+    position: relative;
+}
+.dsm-form .form-table td {
+    margin-bottom: 9px;
+    padding: 20px 0px;
+    line-height: 1.3;
+    vertical-align: middle;
+}
+.dsm-form .form-table td input[type=email],
+.dsm-form .form-table td input[type=text],
+.dsm-form .form-table td .description {
+    width: 500px;
+}
+
+.dsm-my-5 {
+    margin-top: 5px !important;
+    margin-bottom: 5px !important;
+}
+.dsm-fw-bold {
+    font-weight: bold !important;
+}
+.dsm-text-danger {
+    color: #e65054 !important;
+}
+.dsm-float-left {
+    float: left !important;
+}
+.dsm-d-none {
+    display: none !important;
+}
+
+#dsm-instructions .upprice,
+#dsm-instructions .downprice,
+#dsm-instructions .evenprice,
+table.wp-list-table mark.upprice,
+table.wp-list-table mark.downprice,
+table.wp-list-table mark.evenprice {
+    line-height: 1 !important;
+    font-weight: 700 !important;
+    background:  transparent none !important;
+}
+
+#dsm-instructions .upprice,
+table.wp-list-table .isdraft,
+table.wp-list-table mark.upprice {
+    color: #AA4444 !important;
+}
+#dsm-instructions .downprice,
+table.wp-list-table .ispublish,
+table.wp-list-table mark.downprice {
+    color: #7AD03A !important;
+}
+#dsm-instructions .evenprice,
+table.wp-list-table mark.evenprice {
+    color: #739BD0 !important;
+}
+
+#dsm-instructions .upprice,
+#dsm-instructions .downprice,
+#dsm-instructions .evenprice {
+    font-size: 13px;
+}
+table.wp-list-table .column-price,
+table.wp-list-table .column-s_price {
+    width: 20ch !important;
 }
