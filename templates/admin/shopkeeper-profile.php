@@ -29,7 +29,15 @@ defined( "ABSPATH" ) || exit;
         <td>
             <input type="text" name="woo_ds_website" id="woo_ds_website" value="<?php echo esc_attr( get_the_author_meta( "_dsm_url", $user->ID ) ); ?>" class="regular-text" />
             <br>
-            <span class="description" ><?php _e( "Please enter the full URL of the shopkeeper's website.", "woo_ds_supplier" ); ?></span>
+            <p class="description" ><?php _e( "Please enter the full URL of the shopkeeper's website.", "woo_ds_supplier" ); ?></p>
+        </td>
+    </tr>
+    <tr>
+        <th><label for="woo_ds_external"><?php _e( "Secret key from shopkeeper", "woo_ds_supplier" ); ?></label></th>
+        <td>
+            <input type="password" name="woo_ds_external" id="woo_ds_external" value="<?php echo esc_attr( get_the_author_meta( "_dsm_secret_s", $user->ID ) ); ?>" class="regular-text" />
+            <br>
+            <p class="description" ><?php _e( "Enter the secret key provided by the shopkeeper.", "woo_ds_supplier" ); ?></p>
         </td>
     </tr>
     <tr>
@@ -40,10 +48,8 @@ defined( "ABSPATH" ) || exit;
                 <span class="dashicons dashicons-update spin" ></span>
             </button>
             <br>
-            <span class="description" >
-                <?php _e( "Make sure to copy and sent to the shopkeeper new secret key now as will be hidden once you leave this page.", "woo_ds_supplier" ); ?>
-            </span>
-            <span id="set_key_error" class="description" ></span>
+            <p class="description" ><?php _e( "Make sure to copy and sent to the shopkeeper new secret key now as will be hidden once you leave this page.", "woo_ds_supplier" ); ?></p>
+            <p id="set_key_error" class="description" ></p>
 
             <div id="new_key" style="padding-top:10px; display:none;" >
                 <span class="password-input-wrapper" >
@@ -54,18 +60,12 @@ defined( "ABSPATH" ) || exit;
                 </button>
             </div>
             <div id="key_copied" style="display:none;" >
-                <span class="description" ><?php _e( "Secret key copied to clipboard.", "woo_ds_supplier" ); ?></span>
+                <p class="description" ><?php _e( "Secret key copied to clipboard.", "woo_ds_supplier" ); ?></p>
             </div>
 
             <?php if ( get_the_author_meta( "_dsm_secret", $user->ID ) ) : ?>
-                <span id="key_set" class="description" ><?php _e( "This user already have a secret key set.", "woo_ds_supplier" ); ?></span>
+                <p id="key_set" class="description" ><?php _e( "This user already have a secret key set.", "woo_ds_supplier" ); ?></p>
             <?php endif; ?>
-        </td>
-    </tr>
-    <tr>
-        <th><label for="woo_ds_external"><?php _e( "Secret key from shopkeeper", "woo_ds_supplier" ); ?></label></th>
-        <td>
-            <input type="password" name="woo_ds_external" id="woo_ds_external" value="<?php echo esc_attr( get_the_author_meta( "_dsm_secret_s", $user->ID ) ); ?>" class="regular-text" />
         </td>
     </tr>
 </table>
