@@ -9,6 +9,8 @@
 
 namespace Dropshipping_Supplier\Classes\Tables;
 
+use Dropshipping_Shopkeeper\Classes\Helpers\DSM_Helper;
+
 class DSM_Users_table extends \WP_List_Table
 {
     /**
@@ -37,13 +39,34 @@ class DSM_Users_table extends \WP_List_Table
     {
         parent::__construct();
 
+        $this->load_orders();
+        $this->load_users();
+    }
+
+    /**
+     * Load the orders data
+     *
+     * @since   1.0.0
+     * @return  void
+     */
+    private function load_orders()
+    {
         $this->orders = wc_get_orders( [
             "limit"        => -1,
             "meta_key"     => "_dsm_shopkeeper",
             "meta_compare" => "EXISTS",
         ] );
+    }
 
-		$this->users    = get_users( [
+    /**
+     * Load the users data
+     *
+     * @since   1.0.0
+     * @return  void
+     */
+    private function load_users()
+    {
+		$this->users = get_users( [
 			"role"  => "shopkeeper",
 			"order" => "ASC"
 		] );
@@ -61,7 +84,7 @@ class DSM_Users_table extends \WP_List_Table
 
             foreach ( $this->orders as $order )
             {
-                $id = $order->get_meta( "_dsm_supplier" );
+                $id = $order->get_meta( "_dsm_shopkeeper" );
 
                 if ( !empty( $id ) && $id == $user->ID )
                     $count++;
@@ -100,7 +123,7 @@ class DSM_Users_table extends \WP_List_Table
         return $sortable = [
             "username" => [ "username", false ],
             "email"    => [ "email",    false ],
-            "orders"   => [ "orders", false ],
+            "orders"   => [ "orders",   false ],
         ];
     }
 
@@ -175,7 +198,7 @@ class DSM_Users_table extends \WP_List_Table
 
         usort( $this->users, [ &$this, "usort_reorder" ] );
 
-        $per_page              = 10;
+        $per_page              = 25;
         $current_page          = $this->get_pagenum();
         $total_items           = count( $this->users );
         $total_pages           = ceil( $total_items / $per_page );
@@ -381,11 +404,10 @@ class DSM_Users_table extends \WP_List_Table
      */
     public function extra_tablenav( $which )
     {
-        // if ( $which == "top" )
-        //     echo"Hello, I'm before the table";
-
+        // if ( $which == "top"    )
         // if ( $which == "bottom" )
-        //     echo"Hi, I'm after the table";
+
+        require( dirname( \Dropshipping_Supplier::FILE ) . "/templates/notices/message.php" );
     }
 
     /**
@@ -402,13 +424,21 @@ class DSM_Users_table extends \WP_List_Table
         {
             foreach ( $users as $user_id )
             {
+                $count = 0;
+
                 foreach ( $this->orders as $order )
                 {
                     $meta_id = $order->get_meta( "_dsm_shopkeeper" ); //Get ID of shopkeeper
 
                     if ( !empty( $meta_id ) && $meta_id == $user_id )
+                    {
                         $order->delete( true );
+                        $count++;
+                    }
                 }
+
+                $log   = "INFO - Shopkeeper ID {$user_id} - deleted {$count} orders";
+                \Dropshipping_Supplier::log( $log );
             }
         }
     }
@@ -426,7 +456,17 @@ class DSM_Users_table extends \WP_List_Table
         $users = $_POST[ "users" ];
 
         if ( !empty( $users ) )
+        {
             foreach ( $users as $user_id )
+            {
+                delete_user_meta( $user_id, "_dsm_url"      );
+                delete_user_meta( $user_id, "_dsm_secret_s" );
+
                 wp_delete_user( $user_id );
+
+                $log = "INFO - Deleted supplier ID {$user_id}";
+                \Dropshipping_Supplier::log( $log );
+            }
+        }
     }
 }
