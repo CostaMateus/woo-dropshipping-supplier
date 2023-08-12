@@ -69,7 +69,7 @@
             const params = new URLSearchParams( query );
 
             const page   = params.has( "page" ) ? params.get( "page" ) : 0;
-            if ( page == 0 || page != "woo_ds_suppliers" ) return;
+            if ( page == 0 || page != "woo_ds_supplier" ) return;
 
             const tab    = params.has( "tab" ) ? params.get( "tab" ) : 0;
             if ( tab  == 0 || tab  != "shopkeepers" ) return;
@@ -124,27 +124,17 @@
 
         function show_bulk_actions_message( val )
         {
-            $( ".dsm-bulkactions-sync"         ).addClass( "dsm-d-none" );
-            $( ".dsm-bulkactions-import"       ).addClass( "dsm-d-none" );
-            $( ".dsm-bulkactions-del-products" ).addClass( "dsm-d-none" );
-            $( ".dsm-bulkactions-del-users"    ).addClass( "dsm-d-none" );
+            $( ".dsm-bulkactions-del-orders" ).addClass( "dsm-d-none" );
+            $( ".dsm-bulkactions-del-users"  ).addClass( "dsm-d-none" );
 
             switch ( val )
             {
-                case "sync":
-                    $( ".dsm-bulkactions-sync"         ).removeClass( "dsm-d-none" );
-                break;
-
-                case "import":
-                    $( ".dsm-bulkactions-import"       ).removeClass( "dsm-d-none" );
-                break;
-
-                case "del_products":
-                    $( ".dsm-bulkactions-del-products" ).removeClass( "dsm-d-none" );
+                case "del_orders":
+                    $( ".dsm-bulkactions-del-orders" ).removeClass( "dsm-d-none" );
                 break;
 
                 case "del_users":
-                    $( ".dsm-bulkactions-del-users"    ).removeClass( "dsm-d-none" );
+                    $( ".dsm-bulkactions-del-users"  ).removeClass( "dsm-d-none" );
                 break;
             }
         }
