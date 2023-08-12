@@ -147,9 +147,7 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 			return new WP_Error( $code, $message, $status );
 		}
 
-		$user->usermeta = array_map( function ($data ) {
-			return reset( $data );
-		}, get_user_meta( $user->ID ) );
+		$user->usermeta = array_map( function ( $data ) { return reset( $data ); }, get_user_meta( $user->ID ) );
 
 		$_url      = $user->data->usermeta[ "_dsm_url"      ];
 		$_secret   = $user->data->usermeta[ "_dsm_secret"   ];
@@ -166,7 +164,12 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 		{
 			$code    = "dsm_rest_products_v1_invalid_secret";
 			$message = __( "Invalid secret", "woo_ds_supplier" );
-			$status  = [ "status" => 401 ];
+			$status  = [
+				"status" => 401,
+				"data"   => [
+					"_url" => $_url,
+				]
+			];
 
 			return new WP_Error( $code, $message, $status );
 		}
@@ -188,6 +191,7 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 			$request->set_query_params( [
 				"per_page" => 100,
 				"page"     => $page++,
+				"type"     => "simple",
 			] );
 
 			$response = rest_do_request( $request );
