@@ -87,6 +87,29 @@ class Dropshipping_Supplier
     }
 
 	/**
+	 * Log
+	 *
+	 * @since 	1.0.0
+	 * @param 	string 		$message
+	 * @param 	boolean 	$is_error
+	 * @return 	void
+	 */
+	public static function log( $message, $is_error = false )
+	{
+		$debug = get_option( "_dsm_debug" );
+		$log   = ( function_exists( "wc_get_logger" ) ) ? wc_get_logger() : new WC_Logger();
+
+		if ( $debug )
+		{
+			$log->add( self::DOMAIN, $message );
+		}
+		else if ( $is_error )
+		{
+			$log->add( self::DOMAIN, $message );
+		}
+	}
+
+	/**
 	 * Return an instance of this class.
 	 *
 	 * @since 	1.0.0
@@ -114,7 +137,7 @@ class Dropshipping_Supplier
         $args   = [
             "limit"        => -1,
             "status"       => [ "processing" ],
-            "meta_key"     => "_woo_ds_supplier_status_shipped",
+            "meta_key"     => "_dsm_supplier_status_shipped",
             "meta_compare" => "EXISTS",
         ];
 
@@ -153,7 +176,7 @@ class Dropshipping_Supplier
 
 			if ( !$order ) continue;
 
-			$order->update_meta_data( "_woo_ds_supplier_status_shipped", true );
+			$order->update_meta_data( "_dsm_supplier_status_shipped", true );
 			$order->update_status( "processing" );
 			$order->save();
         }
@@ -213,19 +236,21 @@ class Dropshipping_Supplier
 	 */
     public function add_actions()
     {
-		add_action( "init",                     [ $this, "load_rest_api"             ]     );
-        add_action( "init",                     [ $this, "add_custom_order_status"   ]     );
+		add_action( "init",                        [ $this, "load_rest_api"             ]     );
+        add_action( "init",                        [ $this, "add_custom_order_status"   ]     );
 
-		add_action( "admin_menu",               [ $this, "add_admin_menu"            ], 9  );
-        add_action( "admin_enqueue_scripts",    [ $this, "add_admin_style_script"    ]     );
+		add_action( "admin_menu",                  [ $this, "add_admin_menu"            ], 9  );
+        add_action( "admin_enqueue_scripts",       [ $this, "add_admin_style_script"    ]     );
 
-		add_action( "show_user_profile",        [ $this, "extra_profile_fields"      ], 12 );
-		add_action( "edit_user_profile",        [ $this, "extra_profile_fields"      ], 12 );
+		add_action( "show_user_profile",           [ $this, "extra_profile_fields"      ], 12 );
+		add_action( "edit_user_profile",           [ $this, "extra_profile_fields"      ], 12 );
 
-		add_action( "personal_options_update",  [ $this, "save_extra_profile_fields" ]     );
-		add_action( "edit_user_profile_update", [ $this, "save_extra_profile_fields" ]     );
+		add_action( "personal_options_update",     [ $this, "save_extra_profile_fields" ]     );
+		add_action( "edit_user_profile_update",    [ $this, "save_extra_profile_fields" ]     );
 
-		add_action( "wp_ajax_generate_secret",  [ $this, "generate_secret"           ]     );
+		add_action( "wp_ajax_generate_secret",     [ $this, "generate_secret"           ]     );
+
+		add_action( "admin_post_dsm_save_general", [ $this, "save_general_tab_settings" ]     );
     }
 
 	/**
@@ -250,8 +275,10 @@ class Dropshipping_Supplier
 	 */
 	public function add_classes()
 	{
-		require_once( dirname( self::FILE ) . "/includes/classes/class-woo-dsm-orders-table.php" );
-		require_once( dirname( self::FILE ) . "/includes/classes/class-woo-dsm-users-table.php"  );
+		require_once( dirname( self::FILE ) . "/includes/classes/helpers/class-woo-dsm-helper.php"      );
+
+		require_once( dirname( self::FILE ) . "/includes/classes/tables/class-woo-dsm-orders-table.php" );
+		require_once( dirname( self::FILE ) . "/includes/classes/tables/class-woo-dsm-users-table.php"  );
 	}
 
 	/**
@@ -360,12 +387,12 @@ class Dropshipping_Supplier
 		{
 			$c++;
 			$s = microtime( true );
-			password_hash( "woo_ds_hash_cost", PASSWORD_BCRYPT, [ "cost" => $c ] );
+			password_hash( "_dsm_hash_cost", PASSWORD_BCRYPT, [ "cost" => $c ] );
 			$e = microtime( true );
 		}
 		while ( ( $e - $s ) < $t );
 
-		add_option( "woo_ds_hash_cost", $c, "", "no" );
+		add_option( "_dsm_hash_cost", $c, "", "no" );
 	}
 
 	/**
@@ -376,7 +403,7 @@ class Dropshipping_Supplier
 	 */
 	public static function remove_hash()
 	{
-		delete_option( "woo_ds_hash_cost" );
+		delete_option( "_dsm_hash_cost" );
 	}
 
 	/**
@@ -478,10 +505,10 @@ class Dropshipping_Supplier
 			foreach ( $columns as $column_name => $column_info )
 			{
 				$new_columns[ $column_name ] = $column_info;
-				$name                        = self::DOMAIN . "_user_key";
+				$name                        = self::DOMAIN . "_user_keys";
 
 				if ( "role" === $column_name )
-					$new_columns[ $name ] = "DSM Key";
+					$new_columns[ $name ] = "DSM Keys";
 			}
 
 			return $new_columns;
@@ -491,16 +518,19 @@ class Dropshipping_Supplier
 	}
 
 	/**
-	 * Adds 'DSM Key' column content to 'Users' page immediately after 'Role' column.
+	 * Adds 'DSM Keys' column content to 'Users' page immediately after 'Role' column.
 	 *
 	 * @since 	1.0.0
-	 * @param 	array 	$column name of column being displayed
+	 * @param 	mixed 	$val
+	 * @param 	string 	$column
+	 * @param 	string 	$user_id
+	 * @return 	mixed 	$val
 	 */
-	function add_column_content_user( $val, $column, $user_id )
+	public function add_column_content_user( $val, $column, $user_id )
 	{
 		if ( isset( $_GET[ "role" ] ) && $_GET[ "role" ] === "shopkeeper" )
 		{
-			$name = self::DOMAIN . "_user_key";
+			$name = self::DOMAIN . "_user_keys";
 
 			if ( $name === $column )
 			{
@@ -541,7 +571,7 @@ class Dropshipping_Supplier
 		add_menu_page(
 			"Dropshipping Supplier Module",
 			"DSM - Supplier",
-			'manage_options',
+			"manage_options",
 			self::DOMAIN,
 			[ $this, "display_admin_menu" ],
 			plugins_url( "assets/images/dsm.png", self::FILE ),
@@ -562,6 +592,7 @@ class Dropshipping_Supplier
 		$tabs = [
 			"general"     => "General",
 			"shopkeepers" => "Shopkeepers",
+			// "products"  => "Products",
 			"orders"      => "Orders",
 			"settings"    => "Settings",
 			"tools"       => "Tools",
@@ -569,10 +600,27 @@ class Dropshipping_Supplier
 
 		$tab  = isset( $_GET[ "tab" ] ) ? $_GET[ "tab" ] : "general";
 
-		if ( isset( $_GET[ "error_message" ] ) )
+		if ( $tab == "general" )
 		{
-			add_action( "admin_notices", [ $this, "admin_settings_messages" ] );
-			do_action( "admin_notices", $_GET[ "error_message" ] );
+			$date      = date( "Y-m-d" );
+			$esc_attr  = esc_attr( self::DOMAIN );
+			$sanitize  = sanitize_file_name( wp_hash( self::DOMAIN ) );
+			$admin_url = "admin.php?page=wc-status&tab=logs&log_file=$esc_attr-$date-$sanitize.log";
+			$link      = esc_url( admin_url( $admin_url ) );
+			$text      = "WooCommerce &gt Status &gt; Logs";
+			$debug     = "<a href='{$link}' target='_blank' >{$text}</a>";
+		}
+
+		if ( isset( $_GET[ "error_message" ] ) || isset( $_GET[ "warning_message" ] ) )
+		{
+			add_action( "admin_notices", [ $this, "admin_settings_messages" ], 10, 2 );
+			do_action( "admin_notices", "error", $_GET[ "data" ] );
+		}
+
+		if ( isset( $_GET[ "success_message" ] ) )
+		{
+			add_action( "admin_notices", [ $this, "admin_settings_messages" ], 10, 2 );
+			do_action( "admin_notices", "success", $_GET[ "data" ] );
 		}
 
 		require_once( dirname( self::FILE ) . "/templates/admin/settings.php" );
@@ -582,22 +630,80 @@ class Dropshipping_Supplier
 	 * Handles errors and displays messages accordingly
 	 *
 	 * @since 	1.0.0
-	 * @param 	string $error_message
+	 * @param 	string 	$type
+	 * @param 	array 	$data
+	 * @return 	void
 	 */
-	public function admin_settings_messages( $error_message )
+	public function admin_settings_messages( $type, $data )
 	{
-		switch ( $error_message )
+		foreach ( $data as $user_id => $user_data )
 		{
-			case "1":
-				$message       = __( "There was an error adding this setting. Please try again. If this persists, shoot us an email.", "woo_ds_supplier" );
-				$err_code      = esc_attr( "woo_ds_supplier-example-setting" );
-				$setting_field = "woo_ds_supplier_example_setting";
-			break;
+			if ( $user_data[ "errors" ] != 0 )
+			{
+				switch ( $user_data[ "code" ] )
+				{
+					case "MISS":   // users_table
+						$message = sprintf(
+							__( "Missing settings for shoppkeeper %1\$s (%2\$s).", "woo_ds_supplier" ),
+							$user_data[ "user" ],
+							$user_id
+						);
+					break;
+					case "WRG":   // users_table / wp_remote_get
+						$message = __( "Internal failure, try again!", "woo_ds_supplier" );
+					break;
+					case "DRCV":  // users_table / dsm_rest_cannot_view
+						$message = __( "Invalid call, try again!", "woo_ds_supplier" );
+					break;
+					case "DRPIE": // users_table / dsm_rest_products_v1_invalid_email
+						$message = sprintf(
+							__( "Account not found at shopkeeper %1\$s (%2\$s).<br>Check with him, if the credentials were properly registered.", "woo_ds_supplier" ),
+							$user_data[ "user" ],
+							$user_id
+						);
+					break;
+					case "DRPIS": // users_table / dsm_rest_products_v1_invalid_secret
+						$message = sprintf(
+							__( "Invalid credentials for shopkeeper %1\$s (%2\$s).<br>Check the configured secret keys.", "woo_ds_supplier" ),
+							$user_data[ "user" ],
+							$user_id
+						);
+					break;
+
+					default:
+						$message = __( "Internal failure!", "woo_ds_supplier" );
+					break;
+				}
+
+				echo "<div class='notice notice-errror is-dismissible'><p>{$message}</p></div>";
+			}
+			elseif ( $user_data[ "warnings" ] != 0 )
+			{
+				// $message = sprintf(
+				// 	__( "Could not import/sync %1\$s products from supplier %2\$s (%3\$s)!<br>Check the logs for more details.", "woo_ds_supplier" ),
+				// 	$user_data[ "warnings" ],
+				// 	$user_data[ "user"     ],
+				// 	$user_id
+				// );
+
+				// echo "<div class='notice notice-warning is-dismissible'><p>{$message}</p></div>";
+
+				// $count   = array_sum( array_column( $data, "count" ) );
+
+				// if ( $count > 0 )
+				// {
+				// 	$message = __( "{$count} products successfully imported/synced!", "woo_ds_supplier" );
+				// 	echo "<div class='notice notice-success is-dismissible'><p>{$message}</p></div>";
+				// }
+			}
+			else
+			{
+				// $count   = array_sum( array_column( $data, "count" ) );
+				// $message = __( "{$count} products successfully imported/synced!", "woo_ds_supplier" );
+
+				// echo "<div class='notice notice-success is-dismissible'><p>{$message}</p></div>";
+			}
 		}
-
-		$type = "error";
-
-		add_settings_error( $setting_field, $err_code, $message, $type );
 	}
 
 	/**
@@ -628,6 +734,9 @@ class Dropshipping_Supplier
 		if ( $empty || $verify ) return;
 
 		if ( !current_user_can( "edit_user", $user_id ) ) return false;
+
+		// if ( isset( $_POST[ "woo_ds_sku_prefix" ] ) && !empty( $_POST[ "woo_ds_sku_prefix" ] ) )
+		// 	update_user_meta( $user_id, "_dsm_sku_prefix", $_POST[ "woo_ds_sku_prefix" ] );
 
 		if ( isset( $_POST[ "woo_ds_website" ] ) && !empty( $_POST[ "woo_ds_website" ] ) )
 			update_user_meta( $user_id, "_dsm_url", $_POST[ "woo_ds_website" ] );
@@ -670,7 +779,7 @@ class Dropshipping_Supplier
 			}
 
 			$url     = get_home_url();
-			$cost    = get_option( "woo_ds_hash_cost" );
+			$cost    = get_option( "_dsm_hash_cost" ) ?: 12;
 			$pass    = "{$user->ID}|{$user->user_email}|{$url_sp}|{$url}";
 			$secret  = password_hash( $pass, PASSWORD_BCRYPT, [ "cost" => $cost ] );
 
@@ -678,5 +787,53 @@ class Dropshipping_Supplier
 
 			return wp_send_json_success( $secret );
 		}
+	}
+
+	/**
+	 * Save general tab settings
+	 *
+	 * @return void
+	 */
+	public static function save_general_tab_settings()
+	{
+        if ( isset( $_POST[ "_wpnonce" ] ) && !empty( $_POST[ "_wpnonce" ] ) )
+        {
+            $nonce = htmlspecialchars( $_POST[ "_wpnonce" ] );
+
+            if ( !wp_verify_nonce( $nonce, $_POST[ "action" ] ) )
+				wp_die( "Nope! Security check failed!" );
+        }
+
+		/**
+		 * Update DSM email general
+		 */
+		if ( isset( $_POST[ "dsm_email_general" ] ) && !empty( $_POST[ "dsm_email_general" ] ) )
+			update_option( "_dsm_email_general", $_POST[ "dsm_email_general" ] );
+
+		// /**
+		//  * Update DSM categories general
+		//  */
+		// if ( isset( $_POST[ "dsm_categories_general" ] ) && $_POST[ "dsm_categories_general" ] === "on" )
+		// 	update_option( "_dsm_categories_general", true );
+		// elseif ( !isset( $_POST[ "dsm_categories_general" ] ) )
+		// 	update_option( "_dsm_categories_general", false );
+
+		/**
+		 * Update DSM debug general
+		 */
+		if ( isset( $_POST[ "dsm_debug_general" ] ) && $_POST[ "dsm_debug_general" ] === "on" )
+			update_option( "_dsm_debug", true );
+		elseif ( !isset( $_POST[ "dsm_debug_general" ] ) )
+			update_option( "_dsm_debug", false );
+
+		$url = "page=" . self::DOMAIN;
+
+		if ( isset( $_POST[ "_wp_http_referer" ] ) && !empty( $_POST[ "_wp_http_referer" ] ) )
+			$url = explode( "?", $_POST[ "_wp_http_referer" ] )[ 1 ];
+
+		$url = admin_url( "admin.php?{$url}" );
+
+		wp_redirect( $url );
+		exit;
 	}
 }
