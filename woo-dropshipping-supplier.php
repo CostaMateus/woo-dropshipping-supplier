@@ -185,6 +185,7 @@ class Dropshipping_Supplier
         self::remove_role();
 		self::remove_hash();
 		self::remove_users_meta();
+		self::remove_options();
     }
 
 	/**
@@ -414,9 +415,23 @@ class Dropshipping_Supplier
 	 */
 	public static function remove_users_meta()
 	{
-		delete_metadata( "user", 0, "_dsm_url",      "", true );
-		delete_metadata( "user", 0, "_dsm_secret",   "", true );
-		delete_metadata( "user", 0, "_dsm_secret_s", "", true );
+		delete_metadata( "user", 0, "_dsm_url",        "", true );
+		delete_metadata( "user", 0, "_dsm_debug",      "", true );
+		delete_metadata( "user", 0, "_dsm_secret",     "", true );
+		delete_metadata( "user", 0, "_dsm_secret_s",   "", true );
+		delete_metadata( "user", 0, "_dsm_sku_prefix", "", true );
+	}
+
+	/**
+	 * Delete options data
+	 *
+	 * @since 	1.0.0
+	 * @return 	void
+	 */
+	public static function remove_options()
+	{
+		delete_option( "_dsm_email_general"      );
+		delete_option( "_dsm_categories_general" );
 	}
 
     /**
