@@ -41,13 +41,13 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 			[
 				[
 					"methods"             => WP_REST_Server::READABLE,
-					"callback"            => [$this, "get_items"],
-					"permission_callback" => [$this, "get_items_permissions_check"],
+					"callback"            => [ $this, "get_items"                     ],
+					"permission_callback" => [ $this, "get_items_permissions_check"   ],
 					"args"                => $this->get_collection_params(),
 				], [
 					"methods"             => WP_REST_Server::CREATABLE,
-					"callback"            => [$this, "create_item"],
-					"permission_callback" => [$this, "create_item_permissions_check"],
+					"callback"            => [ $this, "create_item"                   ],
+					"permission_callback" => [ $this, "create_item_permissions_check" ],
 					"args"                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
 				],
 				"schema" => [ $this, "get_public_item_schema" ],
@@ -132,46 +132,12 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 	 */
 	public function get_items( $request )
 	{
-		$email     = $request->get_header( "_dsm_email"      );
-		$supp      = $request->get_header( "_dsm_supplier"   );
-		$shop      = $request->get_header( "_dsm_shopkeeper" );
+		$checkAuth = $this->checkAuth( $request );
 
-		$user      = get_user_by( "email", $email );
-
-		if ( !$user )
+		if ( !$checkAuth[ "success" ] )
 		{
-			$code    = "dsm_rest_products_v1_invalid_email";
-			$message = __( "Invalid email", "woo_ds_supplier" );
-			$status  = [ "status" => 401 ];
-
-			return new WP_Error( $code, $message, $status );
-		}
-
-		$user->usermeta = array_map( function ( $data ) { return reset( $data ); }, get_user_meta( $user->ID ) );
-
-		$_url      = $user->data->usermeta[ "_dsm_url"      ];
-		$_secret   = $user->data->usermeta[ "_dsm_secret"   ];
-		$_secret_s = $user->data->usermeta[ "_dsm_secret_s" ];
-
-		$secret    = "{$user->ID}|{$user->user_email}|{$_url}|" . get_home_url();
-
-		$s1        = $_secret   == $supp;
-		$s2        = $_secret_s == $shop;
-
-		$verify    = password_verify( $secret, $_secret );
-
-		if ( !$s1 || !$s2 || !$verify )
-		{
-			$code    = "dsm_rest_products_v1_invalid_secret";
-			$message = __( "Invalid secret", "woo_ds_supplier" );
-			$status  = [
-				"status" => 401,
-				"data"   => [
-					"_url" => $_url,
-				]
-			];
-
-			return new WP_Error( $code, $message, $status );
+			$error = $checkAuth[ "error" ];
+			return new WP_Error( $error[ "code" ], $error[ "message" ], $error[ "status" ] );
 		}
 
 		/**
@@ -192,6 +158,7 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 				"per_page" => 100,
 				"page"     => $page++,
 				"type"     => "simple",
+				"status"   => "publish"
 			] );
 
 			$response = rest_do_request( $request );
@@ -217,9 +184,22 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 	 */
 	public function get_items_permissions_check( $request )
 	{
-		$email = $request->get_header( "_dsm_email"      );
-		$supp  = $request->get_header( "_dsm_supplier"   );
-		$shop  = $request->get_header( "_dsm_shopkeeper" );
+		$checkAuth = $this->checkAuth( $request );
+
+		if ( !$checkAuth[ "success" ] )
+		{
+			$error = $checkAuth[ "error" ];
+			return new WP_Error( $error[ "code" ], $error[ "message" ], $error[ "status" ] );
+		}
+
+		return true;
+	}
+
+	private function checkAuth( $request )
+	{
+		$email     = $request->get_header( "_dsm_email"      );
+		$supp      = $request->get_header( "_dsm_supplier"   );
+		$shop      = $request->get_header( "_dsm_shopkeeper" );
 
 		if ( is_null( $email ) || is_null( $supp ) || is_null( $shop ) )
 		{
@@ -227,9 +207,65 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 			$message = __( "Sorry, you cannot list resources.", "woo_ds_supplier" );
 			$status  = [ "status" => rest_authorization_required_code() ];
 
-			return new WP_Error( $code, $message, $status );
+			return [
+				"success" => false,
+				"error"   => [
+					"code"    => $code,
+					"message" => $message,
+					"status"  => $status
+				]
+			];
 		}
 
-		return true;
+		$user      = get_user_by( "email", $email );
+
+		if ( !$user )
+		{
+			$code    = "dsm_rest_products_v1_invalid_email";
+			$message = __( "Invalid email", "woo_ds_supplier" );
+			$status  = [ "status" => 401 ];
+
+			return [
+				"success" => false,
+				"error"   => [
+					"code"    => $code,
+					"message" => $message,
+					"status"  => $status
+				]
+			];
+		}
+
+		$user->usermeta = array_map( function ( $data ) {
+			return reset( $data );
+		}, get_user_meta( $user->ID ) );
+
+		$_url      = $user->data->usermeta[ "_dsm_url"      ];
+		$_secret   = $user->data->usermeta[ "_dsm_secret"   ];
+		$_secret_s = $user->data->usermeta[ "_dsm_secret_s" ];
+
+		$secret    = "{$user->ID}|{$user->user_email}|{$_url}|" . get_home_url();
+
+		$s1        = $_secret   == $supp;
+		$s2        = $_secret_s == $shop;
+
+		$verify    = password_verify( $secret, $_secret );
+
+		if ( !$s1 || !$s2 || !$verify )
+		{
+			$code    = "dsm_rest_products_v1_invalid_secret";
+			$message = __( "Invalid secret", "woo_ds_supplier" );
+			$status  = [ "status" => 401 ];
+
+			return [
+				"success" => false,
+				"error"   => [
+					"code"    => $code,
+					"message" => $message,
+					"status"  => $status
+				]
+			];
+		}
+
+		return [ "success" => true ];
 	}
 }
