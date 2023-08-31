@@ -145,8 +145,11 @@ class Dropshipping_Supplier
 
         foreach ( $orders as $order )
         {
-            $order->update_status( "shipped", "", true );
-            $order->save();
+			if ( $order->get_meta( "_dsm_supplier_status_shipped" ) && $order->get_status() == "processing" )
+			{
+				$order->update_status( "shipped", "", true );
+				$order->save();
+			}
         }
 
         self::add_role();
@@ -164,21 +167,22 @@ class Dropshipping_Supplier
         if ( !current_user_can( "activate_plugins" ) ) return;
 
         $args   = [
-            "limit"  => -1,
-            "status" => [ "shipped" ],
+            "limit"        => -1,
+            "status"       => [ "shipped" ],
+            "meta_key"     => "_dsm_shopkeeper",
+            "meta_compare" => "EXISTS",
         ];
 
         $orders = wc_get_orders( $args );
 
         foreach ( $orders as $order )
         {
-			$order = ( is_a( $order, "WC_Order_Refund" ) ) ? wc_get_order( $order->get_parent_id() ) : $order;
-
-			if ( !$order ) continue;
-
-			$order->update_meta_data( "_dsm_supplier_status_shipped", true );
-			$order->update_status( "processing" );
-			$order->save();
+			if ( $order->get_meta( "_dsm_shopkeeper" ) && $order->get_status() == "shipped" )
+			{
+				$order->update_meta_data( "_dsm_supplier_status_shipped", true );
+				$order->update_status( "processing" );
+				$order->save();
+			}
         }
 
 		self::remove_role_from_users();
@@ -505,7 +509,7 @@ class Dropshipping_Supplier
 	}
 
 	/**
-	 * Adds 'DSM Key' column header to 'Users' page immediately after 'Role' column.
+	 * Adds 'DSM Keys' column header to 'Users' page immediately after 'Role' column.
 	 *
 	 * @since 	1.0.0
 	 * @param 	array 	$columns
@@ -807,7 +811,8 @@ class Dropshipping_Supplier
 	/**
 	 * Save general tab settings
 	 *
-	 * @return void
+	 * @since 	1.0.0
+	 * @return 	void
 	 */
 	public static function save_general_tab_settings()
 	{
