@@ -249,11 +249,11 @@ class DSM_Users_table extends \WP_List_Table
             // break;
 
             case "del_orders":
-                $this->process_b_a_del_orders();
+                $this->process_b_a_del_orders( $_POST[ "users" ] );
             break;
 
             case "del_users":
-                $this->process_b_a_del_users();
+                $this->process_b_a_del_users( $_POST[ "users" ] );
             break;
         }
     }
@@ -285,7 +285,13 @@ class DSM_Users_table extends \WP_List_Table
      */
     public function column_cb( $item )
     {
-        return sprintf( "<input type='checkbox' name='users[]' value='%s' />", $item->ID );
+        $meta   = $item->usermeta;
+        $key1   = $meta[ "_dsm_secret"   ];
+        $key2   = $meta[ "_dsm_secret_s" ];
+
+        $prefix = ( $key1 && $key2 ) ? "" : "disabled";
+
+        return sprintf( "<input type='checkbox' name='users[]' value='%s' %s />", $item->ID, $prefix );
     }
 
     /**
@@ -328,7 +334,7 @@ class DSM_Users_table extends \WP_List_Table
      */
     public function column_name( $item )
     {
-        return $item->user_firstname . " " . $item->user_lastname;
+        return "{$item->user_firstname} {$item->user_lastname}";
     }
 
     /**
@@ -416,10 +422,8 @@ class DSM_Users_table extends \WP_List_Table
      * @since   1.0.0
      * @return  void
      */
-    public function process_b_a_del_orders()
+    public function process_b_a_del_orders( $users )
     {
-        $users = $_POST[ "users" ];
-
         if ( !empty( $users ) && !empty( $this->orders ) )
         {
             foreach ( $users as $user_id )
@@ -449,11 +453,9 @@ class DSM_Users_table extends \WP_List_Table
      * @since   1.0.0
      * @return  void
      */
-    public function process_b_a_del_users()
+    public function process_b_a_del_users( $users )
     {
-        $this->process_b_a_del_orders();
-
-        $users = $_POST[ "users" ];
+        $this->process_b_a_del_orders( $users );
 
         if ( !empty( $users ) )
         {
