@@ -318,8 +318,8 @@ class DSM_Users_table extends \WP_List_Table
                 )
             );
 
-            $actions[ "edit" ] = "<a href='{$edit_link}'>" . __( "Edit", "woo_ds_supplier" ) . "</a>";
-            $username          = "<strong><a href='{$edit_link}'>{$username}</a></strong>";
+            $actions[ "edit" ] = "<a href='{$edit_link}' target='_blank' >" . __( "Edit", "woo_ds_supplier" ) . "</a>";
+            $username          = "<strong><a href='{$edit_link}' target='_blank' >{$username}</a></strong>";
         }
 
         return sprintf( "%1s %2s", $username, $this->row_actions( $actions ) );
