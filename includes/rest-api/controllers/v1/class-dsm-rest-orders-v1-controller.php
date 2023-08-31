@@ -76,37 +76,16 @@ class DSM_REST_Orders_V1_Controller extends \WP_REST_Controller
 			if ( !isset( $data[ $check ] ) )
 				return new WP_Error( "dsm_rest_orders_v1_missing_data", __( "Missing data body.", "woo_ds_supplier" ), 400 );
 
-		$order = wc_create_order();
+		\Dropshipping_Supplier::log( $request->get_body() );
 
-		foreach ( $data[ "products" ] as $sku => $p )
+		switch ( $data[ "action" ] )
 		{
-			$product_id = wc_get_product_id_by_sku( $sku );
-			$product    = wc_get_product( $product_id );
-
-			$order->add_product( $product, $p[ "quantity" ] );
+			case "create":
+				$response = $this->create_order( $user, $data );
+			break;
 		}
 
-		$order->calculate_totals();
-
-		$order->set_address( $data[ "billing"  ], "billing"  );
-		$order->set_address( $data[ "shipping" ], "shipping" );
-
-		$order->set_customer_ip_address( $data[ "customer_ip" ] );
-		$order->set_customer_id( $user->ID );
-
-		$order->update_meta_data( "_shopkeeper_order_id", $data[ "order_id" ] );
-		$order->update_meta_data( "_dsm_shopkeeper",      $user->ID           );
-
-		$order->add_order_note( "Order from shopkeeper: {$user->user_login} ({$user->ID})" );
-
-		$order->set_status( "wc-on-hold" );
-		$order->save();
-
-		\Dropshipping_Supplier::log( $request->get_body(), true );
-
-		return new WP_REST_Response( [
-			"code" => "dsm_rest_orders_v1_success",
-		], 200 );
+		return $response;
 	}
 
 	/**
@@ -211,5 +190,83 @@ class DSM_REST_Orders_V1_Controller extends \WP_REST_Controller
 			"success" => true,
 			"user"    => $user,
 		];
+	}
+
+	/**
+	 * Get free shipping method || null
+	 *
+	 * @since 	1.0.0
+	 * @return 	array
+	 */
+	private function get_shipping_method()
+	{
+		$shipping_methods = WC()->shipping->get_shipping_methods();
+
+		foreach ( $shipping_methods as $key => $sm )
+			if ( $key == "free_shipping" && $sm->enabled == "yes" )
+				return [
+					"success" => true,
+					"id"      => $key,
+					"title"   => $sm->title,
+				];
+
+		return [ "success" => false ];
+	}
+
+	/**
+	 * Create order with given data
+	 *
+	 * @param 	object 	$user
+	 * @param 	array 	$data
+	 * @return 	void
+	 */
+	private function create_order( $user, $data )
+	{
+		$order = wc_create_order();
+
+		foreach ( $data[ "products" ] as $sku => $p )
+		{
+			$product_id = wc_get_product_id_by_sku( $sku );
+			$product    = wc_get_product( $product_id );
+
+			$order->add_product( $product, $p[ "quantity" ] );
+		}
+
+		$shipping_method = $this->get_shipping_method();
+
+		if ( $shipping_method[ "success" ] )
+		{
+			$shipping = new WC_Order_Item_Shipping();
+			$shipping->set_method_title( $shipping_method[ "title" ] );
+			$shipping->set_method_id( $shipping_method[ "id" ] );
+			$order->add_item( $shipping );
+		}
+
+		$order->calculate_totals();
+
+		$order->set_address( $data[ "billing"  ], "billing"  );
+		$order->set_address( $data[ "shipping" ], "shipping" );
+
+		$order->set_customer_ip_address( $data[ "customer_ip" ] );
+		$order->set_customer_id( $user->ID );
+
+		$order->update_meta_data( "_shopkeeper_order_id", $data[ "order_id" ] );
+		$order->update_meta_data( "_dsm_shopkeeper",      $user->ID           );
+
+		$msg = [
+			"Shopkeeper: {$user->user_login} ({$user->ID})",
+			"Order ID: #" . $data[ "order_id" ],
+		];
+
+		$order->add_order_note( implode( "\n", $msg ) );
+
+		$order->set_status( "wc-on-hold" );
+		$order->save();
+
+		return new WP_REST_Response( [
+			"code"     => "dsm_rest_orders_v1_success",
+			"link"     => $order->get_checkout_payment_url(),
+			"order_id" => $order->get_id(),
+		], 200 );
 	}
 }
