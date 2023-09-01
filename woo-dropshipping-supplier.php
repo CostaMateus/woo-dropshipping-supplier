@@ -132,8 +132,6 @@ class Dropshipping_Supplier
     {
         if ( !current_user_can( "activate_plugins" ) ) return;
 
-        self::add_custom_order_status();
-
         $args   = [
             "limit"        => -1,
             "status"       => [ "processing" ],
@@ -270,6 +268,7 @@ class Dropshipping_Supplier
 		add_filter( "plugin_action_links_" . plugin_basename( self::FILE ), [ $this, "plugin_action_links"           ] );
 		add_filter( "manage_users_columns",                                 [ $this, "add_column_title_user"         ] );
 		add_filter( "manage_users_custom_column",                           [ $this, "add_column_content_user"       ], 10, 3 );
+		add_filter( "bulk_actions-edit-shop_order",                         [ $this, "add_bulk_actions_shop_order"   ], 20, 1 );
 	}
 
 	/**
@@ -305,29 +304,14 @@ class Dropshipping_Supplier
 	 */
     public static function add_custom_order_status()
     {
-        $found    = false;
-        $statuses = wc_get_order_statuses();
-
-        foreach ( $statuses as $key => $status )
-        {
-            if ( $key == "wc-shipped" )
-            {
-                $found = true;
-                break;
-            }
-        }
-
-        if ( !$found )
-        {
-            register_post_status( "wc-shipped", [
-                "label"                     => "Shipped",
-                "public"                    => true,
-                "show_in_admin_status_list" => true,
-                "show_in_admin_all_list"    => true,
-                "exclude_from_search"       => false,
-                "label_count"               => _n_noop( "Shipped <span class='count'>(%s)</span>", "Shipped <span class='count'>(%s)</span>" )
-            ] );
-        }
+		register_post_status( "wc-shipped", [
+			"label"                     => _x( "Shipped", "Order status", "woo_ds_supplier" ),
+			"public"                    => true,
+			"exclude_from_search"       => false,
+			"show_in_admin_all_list"    => true,
+			"show_in_admin_status_list" => true,
+			"label_count"               => _n_noop( "Shipped <span class='count'>(%s)</span>", "Shipped <span class='count'>(%s)</span>" )
+		] );
     }
 
 	/**
@@ -577,6 +561,28 @@ class Dropshipping_Supplier
 		}
 
 		return $val;
+	}
+
+	/**
+	 * Add option to bulk actions on shop order page, to change status to 'shipped'
+	 *
+	 * @since 	1.0.0
+	 * @param 	array 	$actions
+	 * @return 	array
+	 */
+	public function add_bulk_actions_shop_order( $actions )
+	{
+		$new_actions = [];
+
+		foreach ( $actions as $key => $action )
+		{
+			$new_actions[ $key ] = $action;
+
+			if ( "mark_on-hold" === $key )
+				$new_actions[ "mark_shipped" ] = __( "Change status to shipped", "woo_dsm_supplier" );
+		}
+
+		return $new_actions;
 	}
 
 	/**
