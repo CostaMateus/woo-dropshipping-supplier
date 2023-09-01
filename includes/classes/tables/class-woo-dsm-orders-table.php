@@ -42,6 +42,20 @@ class DSM_Orders_table extends \WP_List_Table
     }
 
     /**
+     * Load the users data
+     *
+     * @since   1.0.0
+     * @return  void
+     */
+    private function load_users()
+    {
+		$this->users = get_users( [
+			"role"  => "shopkeeper",
+			"order" => "ASC"
+		] );
+    }
+
+    /**
      * Load the products data
      *
      * @since   1.0.0
@@ -59,27 +73,13 @@ class DSM_Orders_table extends \WP_List_Table
         {
             foreach ( $this->users as $user )
             {
-                if ( $user->ID == $order->get_meta( "_dsm_supplier" ) )
+                if ( $user->ID == $order->get_meta( "_dsm_shopkeeper" ) )
                 {
-                    $order->shopkeeper = "{$user->user_firstname} {$user->user_lastname}";
+                    $order->shopkeeper = $user->user_login;
                     break;
                 }
             }
         }
-    }
-
-    /**
-     * Load the users data
-     *
-     * @since   1.0.0
-     * @return  void
-     */
-    private function load_users()
-    {
-		$this->users = get_users( [
-			"role"  => "shopkeeper",
-			"order" => "ASC"
-		] );
     }
 
     /**
@@ -224,6 +224,8 @@ class DSM_Orders_table extends \WP_List_Table
      */
     public function prepare_items()
     {
+        $this->process_bulk_action();
+
         $hidden                = [];
         $columns               = $this->get_columns();
         $sortable              = $this->get_sortable_columns();
@@ -250,6 +252,17 @@ class DSM_Orders_table extends \WP_List_Table
         ] );
 
         $this->items           = $this->orders;
+    }
+
+    /**
+     * Process the bulk actions
+     *
+     * @since   1.0.0
+     * @return  void
+     */
+    public function process_bulk_action()
+    {
+        //
     }
 
     /**
@@ -291,7 +304,22 @@ class DSM_Orders_table extends \WP_List_Table
      */
     public function column_order_id( $item )
     {
-        return "#" . $item->get_id();
+        $id = "<strong>#{$item->get_id()}</strong>";
+
+        if ( current_user_can( "edit_posts" ) )
+        {
+            $edit_link = esc_url(
+                add_query_arg(
+                    "wp_http_referer",
+                    urlencode( wp_unslash( $_SERVER[ "REQUEST_URI" ] ) ),
+                    $item->get_edit_order_url()
+                )
+            );
+
+            $id        = "<strong><a href='{$edit_link}' target='_blank' >{$id}</a></strong>";
+        }
+
+        return $id;
     }
 
     /**
@@ -318,8 +346,8 @@ class DSM_Orders_table extends \WP_List_Table
                 )
             );
 
-            $actions[ "edit" ] = "<a href='{$edit_link}'>" . __( "Edit",   "woo_ds_shopkeeper" ) . "</a>";
-            $name              = "<strong><a href='{$edit_link}'>{$item->shopkeeper}</a></strong>";
+            $actions[ "edit" ] = "<a href='{$edit_link}' target='_blank' >" . __( "Edit",   "woo_ds_shopkeeper" ) . "</a>";
+            $name              = "<strong><a href='{$edit_link}' target='_blank' >{$item->shopkeeper}</a></strong>";
         }
 
         return sprintf( "%1s %2s", $name, $this->row_actions( $actions ) );
@@ -346,7 +374,18 @@ class DSM_Orders_table extends \WP_List_Table
      */
     public function column_status( $item )
     {
-        return $item->get_status();
+		if ( in_array( $item->get_status(), array( "trash", "draft", "auto-draft" ), true ) )
+        {
+			$status_name = ( get_post_status_object( $item->get_status() ) )->label;
+		}
+        else
+        {
+			$status_name = wc_get_order_status_name( $item->get_status() );
+		}
+
+        $class = esc_attr( sanitize_html_class( 'status-' . $item->get_status() ) );
+
+        return "<mark class='order-status {$class}'><span>{$status_name}</span></mark>";
     }
 
     /**
