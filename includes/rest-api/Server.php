@@ -36,6 +36,8 @@ class Server
 	 */
 	public function init()
     {
+		require_once( dirname( __FILE__ ) . "/Controllers/v1/class-dsm-rest-main-controller.php"        );
+
 		require_once( dirname( __FILE__ ) . "/Controllers/v1/class-dsm-rest-orders-v1-controller.php"   );
 		require_once( dirname( __FILE__ ) . "/Controllers/v1/class-dsm-rest-products-v1-controller.php" );
 
