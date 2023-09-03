@@ -28,7 +28,7 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 	protected $rest_base = "products";
 
 	/**
-	 * Register the routes for orders.
+	 * Register the routes for products.
 	 *
 	 * @since   1.0.0
 	 * @return  void
