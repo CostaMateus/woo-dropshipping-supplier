@@ -283,6 +283,8 @@ class Dropshipping_Supplier
 
 		require_once( dirname( self::FILE ) . "/includes/classes/tables/class-woo-dsm-orders-table.php" );
 		require_once( dirname( self::FILE ) . "/includes/classes/tables/class-woo-dsm-users-table.php"  );
+
+		require_once( dirname( self::FILE ) . "/includes/classes/class-woo-dsm-products.php"            );
 	}
 
 	/**
