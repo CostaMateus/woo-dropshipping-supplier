@@ -19,7 +19,7 @@ class DSM_Orders
      */
     public function __construct()
     {
-        add_action( "woocommerce_order_status_changed", [ $this, "order_status_change" ], 10, 4  );
+        add_action( "woocommerce_order_status_changed", [ $this, "send_order_status_change" ], 10, 4  );
     }
 
     /**
@@ -48,6 +48,14 @@ class DSM_Orders
 
         if ( !$url || !$secret || !$secret_s ) return;
 
+        $skus     = [];
+
+        foreach ( $order->get_items() as $item )
+        {
+            $product = $item->get_product();
+            $skus[]  = $product->get_sku();
+        }
+
         $args     = [
             "timeout"     => 60,
             "sslverify"   => false,
@@ -59,8 +67,10 @@ class DSM_Orders
                 "Content-Type"    => "application/json",
             ],
             "body"        => wp_json_encode( [
-                "order_id" => $order->get_meta( "_dsm_order", true ),
-                "status"   => $new_status,
+                "order_id"      => $order->get_meta( "_dsm_order", true ),
+                "status"        => $new_status,
+                "skus"          => $skus,
+                "tracking_code" => "123-TESTE"
             ] )
         ];
 
