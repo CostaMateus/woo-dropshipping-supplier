@@ -37,94 +37,31 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 	{
 		register_rest_route(
 			$this->namespace,
-			"/" . $this->rest_base,
+			"/{$this->rest_base}",
 			[
 				[
 					"methods"             => WP_REST_Server::READABLE,
-					"callback"            => [ $this, "get_items"                     ],
-					"permission_callback" => [ $this, "get_items_permissions_check"   ],
-					"args"                => $this->get_collection_params(),
-				], [
-					"methods"             => WP_REST_Server::CREATABLE,
-					"callback"            => [ $this, "create_item"                   ],
-					"permission_callback" => [ $this, "create_item_permissions_check" ],
-					"args"                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
+					"callback"            => [ $this, "get_items"         ],
+					"permission_callback" => [ $this, "permissions_check" ],
 				],
-				"schema" => [ $this, "get_public_item_schema" ],
+			]
+		);
+
+		register_rest_route(
+			$this->namespace,
+			"/{$this->rest_base}/imported",
+			[
+				[
+					"methods"             => WP_REST_Server::CREATABLE,
+					"callback"            => [ $this, "imported_items"    ],
+					"permission_callback" => [ $this, "permissions_check" ],
+				],
 			]
 		);
 	}
 
 	/**
-	 * Get the query params for collections of attachments.
-	 *
-	 * @since   1.0.0
-	 * @return 	array
-	 */
-	public function get_collection_params()
-	{
-		$params[ "slug"           ] = [
-			"description"       => __( "Limit result set to products with a specific slug.", "woo_ds_supplier" ),
-			"type"              => "string",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-		$params[ "status"         ] = [
-			"default"           => "any",
-			"description"       => __( "Limit result set to products assigned a specific status.", "woo_ds_supplier" ),
-			"type"              => "string",
-			"enum"              => array_merge( [ "any", "future" ], array_keys( get_post_statuses() ) ),
-			"sanitize_callback" => "sanitize_key",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-		$params[ "type"           ] = [
-			"description"       => __( "Limit result set to products assigned a specific type.", "woo_ds_supplier" ),
-			"type"              => "string",
-			"enum"              => array_keys( wc_get_product_types() ),
-			"sanitize_callback" => "sanitize_key",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-		$params[ "category"       ] = [
-			"description"       => __( "Limit result set to products assigned a specific category ID.", "woo_ds_supplier" ),
-			"type"              => "string",
-			"sanitize_callback" => "wp_parse_id_list",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-		$params[ "tag"            ] = [
-			"description"       => __( "Limit result set to products assigned a specific tag ID.", "woo_ds_supplier" ),
-			"type"              => "string",
-			"sanitize_callback" => "wp_parse_id_list",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-		$params[ "shipping_class" ] = [
-			"description"       => __( "Limit result set to products assigned a specific shipping class ID.", "woo_ds_supplier" ),
-			"type"              => "string",
-			"sanitize_callback" => "wp_parse_id_list",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-		$params[ "attribute"      ] = [
-			"description"       => __( "Limit result set to products with a specific attribute.", "woo_ds_supplier" ),
-			"type"              => "string",
-			"sanitize_callback" => "sanitize_text_field",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-		$params[ "attribute_term" ] = [
-			"description"       => __( "Limit result set to products with a specific attribute term ID (required an assigned attribute).", "woo_ds_supplier" ),
-			"type"              => "string",
-			"sanitize_callback" => "wp_parse_id_list",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-		$params[ "sku"            ] = [
-			"description"       => __( "Limit result set to products with a specific SKU.", "woo_ds_supplier" ),
-			"type"              => "string",
-			"sanitize_callback" => "sanitize_text_field",
-			"validate_callback" => "rest_validate_request_arg",
-		];
-
-		return $params;
-	}
-
-	/**
-	 * Get a collection of posts.
+	 * Get a collection of WC Products.
 	 *
 	 * @since 	1.0.0
 	 * @param 	WP_REST_Request $request Full details about the request.
@@ -176,13 +113,71 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 	}
 
 	/**
+	 * Saves in the product which shopkeeper imported it
+	 *
+	 * @since   1.0.0
+	 * @param  	WP_REST_Request 	$request Full details about the request.
+	 * @return 	WP_Error|WP_REST_Response
+	 */
+	public function imported_items( $request )
+	{
+		$checkAuth = $this->checkAuth( $request );
+
+		if ( !$checkAuth[ "success" ] )
+		{
+			$error = $checkAuth[ "error" ];
+			return new WP_Error( $error[ "code" ], $error[ "message" ], $error[ "status" ] );
+		}
+
+		$data      = $request->get_body_params();
+
+		if ( !isset( $data[ "skus" ] ) )
+			return new WP_Error( "dsm_rest_products_v1_missing_data", __( "Missing data body.", "woo_ds_supplier" ), 400 );
+
+		$skus      = $data[ "skus" ];
+		$user      = $checkAuth[ "user" ];
+		$add = [];
+
+		foreach ( $skus as $sku )
+		{
+			$product_id = wc_get_product_id_by_sku( $sku );
+
+			if ( $product_id )
+			{
+				$product    = wc_get_product( $product_id );
+
+				$meta       = $user->ID;
+
+				if ( $product->meta_exists( "_dsm_shopkeepers_imported" ) )
+				{
+					$meta   = $product->get_meta( "_dsm_shopkeepers_imported", true );
+					$meta   = explode( ",", $meta );
+					$meta[] = $user->ID;
+					$meta   = array_unique( $meta );
+					$meta   = implode( ",", $meta );
+				}
+
+				$product->update_meta_data( "_dsm_shopkeepers_imported", $meta );
+				$product->save_meta_data();
+
+				$add[] = $product_id;
+			}
+		}
+
+		return new WP_REST_Response( [
+			"code" => "dsm_rest_products_v1_success",
+			"ids"  => $add,
+		], 200 );
+	}
+
+	/**
 	 * Check if a given request has access to read items.
 	 *
 	 * @since 	1.0.0
-	 * @param  	WP_REST_Request $request Full details about the request.
+	 * @param  	WP_REST_Request 	$request Full details about the request.
 	 * @return 	WP_Error|boolean
 	 */
-	public function get_items_permissions_check( $request )
+	public function permissions_check( $request )
 	{
 		$checkAuth = $this->checkAuth( $request );
 
@@ -195,6 +190,13 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 		return true;
 	}
 
+	/**
+	 * Validate the request.
+	 *
+	 * @since   1.0.0
+	 * @param  	WP_REST_Request 	$request Full details about the request.
+	 * @return 	array
+	 */
 	private function checkAuth( $request )
 	{
 		$email     = $request->get_header( "_dsm_email"      );
@@ -266,6 +268,9 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 			];
 		}
 
-		return [ "success" => true ];
+		return [
+			"success" => true,
+			"user"    => $user,
+		];
 	}
 }
