@@ -11,7 +11,6 @@ namespace Dropshipping_Shopkeeper\Classes;
 
 class DSM_Products
 {
-
     /**
      * Constructor
      *
@@ -24,28 +23,7 @@ class DSM_Products
     }
 
     /**
-     * Load the users data
-     *
-     * @since   1.0.0
-     * @return  void
-     */
-    private function load_users()
-    {
-		$this->users = get_users( [
-			"role"  => "shopkeeper",
-			"order" => "ASC"
-		] );
-
-        array_map( function( &$user ) {
-            $user->usermeta = array_map( function ($data ) {
-                return reset( $data );
-            }, get_user_meta( $user->ID ) );
-            return $user;
-        }, $this->users );
-    }
-
-    /**
-     * Send order to suppliers
+     * Send productt changes to shopkeeper
      *
      * @since   1.0.0
      * @param   object  $product
@@ -73,9 +51,9 @@ class DSM_Products
 
             foreach ( $shops as $id )
             {
-                $url      = get_user_meta( $id, "_dsm_url"     ,   true );
-                $secret   = get_user_meta( $id, "_dsm_secret"  ,   true );
-                $secret_s = get_user_meta( $id, "_dsm_secret_s",   true );
+                $url      = get_user_meta( $id, "_dsm_url",      true );
+                $secret   = get_user_meta( $id, "_dsm_secret",   true );
+                $secret_s = get_user_meta( $id, "_dsm_secret_s", true );
 
                 if ( !$url || !$secret || !$secret_s ) continue;
 
