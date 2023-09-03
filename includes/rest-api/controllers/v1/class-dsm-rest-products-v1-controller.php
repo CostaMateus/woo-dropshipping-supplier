@@ -129,14 +129,13 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 			return new WP_Error( $error[ "code" ], $error[ "message" ], $error[ "status" ] );
 		}
 
-		$data      = $request->get_body_params();
+		$user      = $checkAuth[ "user" ];
+		$data      = json_decode( $request->get_body(), true );
 
 		if ( !isset( $data[ "skus" ] ) )
 			return new WP_Error( "dsm_rest_products_v1_missing_data", __( "Missing data body.", "woo_ds_supplier" ), 400 );
 
 		$skus      = $data[ "skus" ];
-		$user      = $checkAuth[ "user" ];
-		$add = [];
 
 		foreach ( $skus as $sku )
 		{
@@ -159,14 +158,11 @@ class DSM_REST_Products_V1_Controller extends \WP_REST_Controller
 
 				$product->update_meta_data( "_dsm_shopkeepers_imported", $meta );
 				$product->save_meta_data();
-
-				$add[] = $product_id;
 			}
 		}
 
 		return new WP_REST_Response( [
 			"code" => "dsm_rest_products_v1_success",
-			"ids"  => $add,
 		], 200 );
 	}
 
