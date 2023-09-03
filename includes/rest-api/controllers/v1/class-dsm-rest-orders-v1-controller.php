@@ -250,8 +250,8 @@ class DSM_REST_Orders_V1_Controller extends \WP_REST_Controller
 		$order->set_customer_ip_address( $data[ "customer_ip" ] );
 		$order->set_customer_id( $user->ID );
 
-		$order->update_meta_data( "_shopkeeper_order_id", $data[ "order_id" ] );
-		$order->update_meta_data( "_dsm_shopkeeper",      $user->ID           );
+		$order->update_meta_data( "_dsm_order",      $data[ "order_id" ] );
+		$order->update_meta_data( "_dsm_shopkeeper", $user->ID           );
 
 		$msg = [
 			"Shopkeeper: {$user->user_login} ({$user->ID})",
