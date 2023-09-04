@@ -19,11 +19,11 @@ class DSM_Orders
      */
     public function __construct()
     {
-        add_action( "woocommerce_order_status_changed", [ $this, "send_order_status_change"      ], 10, 4 );
+        add_action( "woocommerce_order_status_changed",      [ $this, "send_order_status_change"      ], 10, 4 );
 
-        add_filter( "wc_order_statuses",                [ $this, "add_shipped_to_order_statuses" ]        );
-		add_filter( "bulk_actions-edit-shop_order",     [ $this, "add_bulk_actions_shop_order"   ], 20, 1 );
-		add_filter( "manage_edit-shop_order_columns",   [ $this, "add_column_title_shopkeeper"   ]        );
+        add_filter( "wc_order_statuses",                     [ $this, "add_shipped_to_order_statuses" ]        );
+		add_filter( "bulk_actions-edit-shop_order",          [ $this, "add_bulk_actions_shop_order"   ], 20, 1 );
+		add_filter( "manage_edit-shop_order_columns",        [ $this, "add_column_title_shopkeeper"   ]        );
 		add_filter( "manage_shop_order_posts_custom_column", [ $this, "add_column_content_shopkeeper" ], 10, 3 );
     }
 
