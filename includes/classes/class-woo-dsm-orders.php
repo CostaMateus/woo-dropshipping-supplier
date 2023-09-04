@@ -3,11 +3,11 @@
  * Orders class.
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
- * @package 	Dropshipping_Shopkeeper\Classes
+ * @package 	Dropshipping_Supplier\Classes
  * @version 	1.0.0
  */
 
-namespace Dropshipping_Shopkeeper\Classes;
+namespace Dropshipping_Supplier\Classes;
 
 class DSM_Orders
 {
@@ -20,8 +20,11 @@ class DSM_Orders
     public function __construct()
     {
         add_action( "woocommerce_order_status_changed", [ $this, "send_order_status_change"      ], 10, 4 );
+
         add_filter( "wc_order_statuses",                [ $this, "add_shipped_to_order_statuses" ]        );
 		add_filter( "bulk_actions-edit-shop_order",     [ $this, "add_bulk_actions_shop_order"   ], 20, 1 );
+		add_filter( "manage_edit-shop_order_columns",   [ $this, "add_column_title_shopkeeper"   ]        );
+		add_filter( "manage_shop_order_posts_custom_column", [ $this, "add_column_content_shopkeeper" ], 10, 3 );
     }
 
     /**
@@ -151,6 +154,49 @@ class DSM_Orders
 		}
 
 		return $new_actions;
+	}
+
+	/**
+	 * Adds 'Shopkeeper' column header to 'All Orders' page immediately after 'Status' column.
+	 *
+	 * @since 	1.0.0
+	 * @param 	array 	$columns
+	 * @return 	array	$new_columns
+	 */
+	public function add_column_title_shopkeeper( $columns )
+	{
+		$new_columns = [];
+
+		foreach ( $columns as $column_name => $column_info )
+		{
+			$new_columns[ $column_name ] = $column_info;
+
+			if ( "order_status" === $column_name )
+				$new_columns[ \Dropshipping_Supplier::DOMAIN . "_shopkeeper" ] = __( "Shopkeeper", "woo_ds_supplier" );
+		}
+
+		return $new_columns;
+	}
+
+	/**
+	 * Adds 'Supplier' column content to 'All Products' page immediately after 'Categories' column.
+	 *
+	 * @since 	1.0.0
+	 * @param 	mixed 	$val
+	 * @param 	string 	$column
+	 * @param 	string 	$order_id
+	 * @return 	mixed 	$val
+	 */
+	public function add_column_content_shopkeeper( $column, $order_id )
+	{
+		if ( $column === \Dropshipping_Supplier::DOMAIN . "_shopkeeper" )
+		{
+			$order         = wc_get_order( $order_id );
+			$shopkeeper_id = $order->get_customer_id();
+            $shopkeeper    = get_user_by( "id", $shopkeeper_id );
+
+            echo $shopkeeper->user_login;
+		}
 	}
 }
 
