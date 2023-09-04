@@ -256,7 +256,7 @@ class Dropshipping_Supplier
 	 */
     public function add_filters()
     {
-		add_filter( "plugin_action_links_" . plugin_basename( self::FILE ), [ $this, "plugin_action_links"           ] );
+		add_filter( "plugin_action_links_" . plugin_basename( self::FILE ), [ $this, "plugin_action_links" ] );
 	}
 
 	/**

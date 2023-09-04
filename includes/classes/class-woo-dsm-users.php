@@ -41,7 +41,7 @@ class DSM_Users
 	public function extra_profile_fields( $user )
 	{
 		if ( in_array( "shopkeeper", $user->roles ) )
-			require_once( dirname( self::FILE ) . "/templates/admin/shopkeeper-profile.php" );
+			require_once( dirname( \Dropshipping_Supplier::FILE ) . "/templates/admin/shopkeeper-profile.php" );
 	}
 
 	/**
@@ -130,7 +130,7 @@ class DSM_Users
 			foreach ( $columns as $column_name => $column_info )
 			{
 				$new_columns[ $column_name ] = $column_info;
-				$name                        = self::DOMAIN . "_user_keys";
+				$name                        = \Dropshipping_Supplier::DOMAIN . "_user_keys";
 
 				if ( "role" === $column_name )
 					$new_columns[ $name ] = "DSM Keys";
@@ -155,7 +155,7 @@ class DSM_Users
 	{
 		if ( isset( $_GET[ "role" ] ) && $_GET[ "role" ] === "shopkeeper" )
 		{
-			$name = self::DOMAIN . "_user_keys";
+			$name = \Dropshipping_Supplier::DOMAIN . "_user_keys";
 
 			if ( $name === $column )
 			{
