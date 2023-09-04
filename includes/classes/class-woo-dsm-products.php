@@ -3,11 +3,11 @@
  * Products class.
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
- * @package 	Dropshipping_Shopkeeper\Classes
+ * @package 	Dropshipping_Supplier\Classes
  * @version 	1.0.0
  */
 
-namespace Dropshipping_Shopkeeper\Classes;
+namespace Dropshipping_Supplier\Classes;
 
 class DSM_Products
 {

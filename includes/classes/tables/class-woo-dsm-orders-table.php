@@ -91,11 +91,11 @@ class DSM_Orders_table extends \WP_List_Table
     public function get_columns()
     {
         return $columns = [
-            "order_id"   => __( "Order ID",   "woo_ds_shopkeeper" ),
-            "shopkeeper" => __( "Shopkeeper", "woo_ds_shopkeeper" ),
-            "date"       => __( "Date",       "woo_ds_shopkeeper" ),
-            "status"     => __( "Status",     "woo_ds_shopkeeper" ),
-            "total"      => __( "Total",      "woo_ds_shopkeeper" ),
+            "order_id"   => __( "Order ID",   "woo_ds_supplier" ),
+            "shopkeeper" => __( "Shopkeeper", "woo_ds_supplier" ),
+            "date"       => __( "Date",       "woo_ds_supplier" ),
+            "status"     => __( "Status",     "woo_ds_supplier" ),
+            "total"      => __( "Total",      "woo_ds_supplier" ),
         ];
     }
 
@@ -213,7 +213,7 @@ class DSM_Orders_table extends \WP_List_Table
      */
     public function no_items()
     {
-        _e( "No products found.", "woo_ds_shopkeeper" );
+        _e( "No products found.", "woo_ds_supplier" );
     }
 
     /**
@@ -346,7 +346,7 @@ class DSM_Orders_table extends \WP_List_Table
                 )
             );
 
-            $actions[ "edit" ] = "<a href='{$edit_link}' target='_blank' >" . __( "Edit",   "woo_ds_shopkeeper" ) . "</a>";
+            $actions[ "edit" ] = "<a href='{$edit_link}' target='_blank' >" . __( "Edit",   "woo_ds_supplier" ) . "</a>";
             $name              = "<strong><a href='{$edit_link}' target='_blank' >{$item->shopkeeper}</a></strong>";
         }
 

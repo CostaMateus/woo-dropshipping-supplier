@@ -14,9 +14,9 @@ defined( "ABSPATH" ) || exit;
 <section>
 	<div class="wrap-dsm" id="" >
 		<h2 class="wp-heading-inline" style="display:inline;" >
-			<?php _e( "Tools", "woo_ds_shopkeeper" ); ?>
+			<?php _e( "Tools", "woo_ds_supplier" ); ?>
 		</h2>
 
-		<p><?php _e( "In development!", "woo_ds_shopkeeper" ); ?></p>
+		<p><?php _e( "In development!", "woo_ds_supplier" ); ?></p>
 	</div>
 </section>

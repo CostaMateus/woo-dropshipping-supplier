@@ -3,11 +3,11 @@
  * Users class.
  *
  * @author 		Mateus Costa <mateus@costamateus.com.br>
- * @package 	Dropshipping_Shopkeeper\Classes
+ * @package 	Dropshipping_Supplier\Classes
  * @version 	1.0.0
  */
 
-namespace Dropshipping_Shopkeeper\Classes;
+namespace Dropshipping_Supplier\Classes;
 
 class DSM_Users
 {
@@ -21,10 +21,8 @@ class DSM_Users
     {
 		add_action( "show_user_profile",          [ $this, "extra_profile_fields"      ], 12    );
 		add_action( "edit_user_profile",          [ $this, "extra_profile_fields"      ], 12    );
-
 		add_action( "personal_options_update",    [ $this, "save_extra_profile_fields" ]        );
 		add_action( "edit_user_profile_update",   [ $this, "save_extra_profile_fields" ]        );
-
 		add_action( "wp_ajax_generate_secret",    [ $this, "generate_secret"           ]        );
 
 		add_filter( "manage_users_columns",       [ $this, "add_column_title_user"     ]        );
