@@ -19,7 +19,9 @@ class DSM_Orders
      */
     public function __construct()
     {
-        add_action( "woocommerce_order_status_changed", [ $this, "send_order_status_change" ], 10, 4  );
+        add_action( "woocommerce_order_status_changed", [ $this, "send_order_status_change"      ], 10, 4 );
+        add_filter( "wc_order_statuses",                [ $this, "add_shipped_to_order_statuses" ]        );
+		add_filter( "bulk_actions-edit-shop_order",     [ $this, "add_bulk_actions_shop_order"   ], 20, 1 );
     }
 
     /**
@@ -32,7 +34,7 @@ class DSM_Orders
      * @param   object  $order
      * @return  void
      */
-    public static function send_order_status_change( $order_id, $old_status, $new_status, $order )
+    public function send_order_status_change( $order_id, $old_status, $new_status, $order )
     {
         $status   = [ "pending", "on-hold", "processing", ];
 
@@ -106,6 +108,50 @@ class DSM_Orders
             $order->save();
         }
     }
+
+	/**
+	 * Add 'shipped' status after 'on-hold' status.
+	 *
+	 * @since 	1.0.0
+     * @param   array $order_statuses
+	 * @return 	void
+	 */
+    public function add_shipped_to_order_statuses( $order_statuses )
+    {
+        $new_order_statuses = [];
+
+        foreach ( $order_statuses as $key => $status )
+        {
+            $new_order_statuses[ $key ] = $status;
+
+            if ( $key === "wc-on-hold" )
+                $new_order_statuses[ "wc-shipped" ] = "Shipped";
+        }
+
+        return $new_order_statuses;
+    }
+
+	/**
+	 * Add option to bulk actions on shop order page, to change status to 'shipped'
+	 *
+	 * @since 	1.0.0
+	 * @param 	array 	$actions
+	 * @return 	array
+	 */
+	public function add_bulk_actions_shop_order( $actions )
+	{
+		$new_actions = [];
+
+		foreach ( $actions as $key => $action )
+		{
+			$new_actions[ $key ] = $action;
+
+			if ( "mark_on-hold" === $key )
+				$new_actions[ "mark_shipped" ] = __( "Change status to shipped", "woo_dsm_supplier" );
+		}
+
+		return $new_actions;
+	}
 }
 
 new DSM_Orders();

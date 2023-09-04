@@ -30,7 +30,7 @@ class DSM_Products
      * @param   object  $data
      * @return  void
      */
-    public static function send_product_changes( $product, $data )
+    public function send_product_changes( $product, $data )
     {
         $data = [
             "stock_quantity" => $product->get_stock_quantity(),
