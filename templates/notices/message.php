@@ -18,4 +18,7 @@ defined( "ABSPATH" ) || exit;
     <p class="dsm-bulkactions-del-users dsm-my-5 dsm-fw-bold dsm-text-danger dsm-float-left dsm-d-none" >
         <?php _e( "You will permanently delete the shopkeepers and its orders.", "woo_ds_supplier" ); ?>
     </p>
+    <p class="dsm-bulkactions-upd-shipped dsm-my-5 dsm-fw-bold dsm-text-danger dsm-float-left dsm-d-none" >
+        <?php _e( "Only orders with 'processing' status will be updated.", "woo_ds_supplier" ); ?>
+    </p>
 </div>

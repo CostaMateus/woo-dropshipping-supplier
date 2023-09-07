@@ -91,6 +91,7 @@ class DSM_Orders_table extends \WP_List_Table
     public function get_columns()
     {
         return $columns = [
+            "cb"         => "",
             "order_id"   => __( "Order ID",   "woo_ds_supplier" ),
             "shopkeeper" => __( "Shopkeeper", "woo_ds_supplier" ),
             "date"       => __( "Date",       "woo_ds_supplier" ),
@@ -145,10 +146,7 @@ class DSM_Orders_table extends \WP_List_Table
 
         if ( $orderby == "shopkeeper" )
         {
-            $s1     = $a->get_meta( "_dsm_shopkeeper" );
-            $s2     = $a->get_meta( "_dsm_shopkeeper" );
-
-            $result = strcasecmp( $s1, $s2 );
+            $result = strcasecmp( $a->shopkeeper, $b->shopkeeper );
 
             if ( $result !== 0 )
                 return ( $order === "asc" ) ? $result : -$result;
@@ -192,17 +190,18 @@ class DSM_Orders_table extends \WP_List_Table
     }
 
     /**
+     * Get bulk actions
      *
      * @since   1.0.0
-     * @return  void
+     * @return  array
      */
     public function get_bulk_actions()
     {
-        // $actions = [
-        //     "delete" => "Delete"
-        // ];
-        //
-        // return $actions;
+        $actions = [
+            "upd_shipped" =>  __( "Set status shipped", "woo_ds_supplier" )
+        ];
+
+        return $actions;
     }
 
     /**
@@ -262,7 +261,25 @@ class DSM_Orders_table extends \WP_List_Table
      */
     public function process_bulk_action()
     {
-        //
+        if ( isset( $_POST[ "_wpnonce" ] ) && !empty( $_POST[ "_wpnonce" ] ) )
+        {
+            $nonce  = htmlspecialchars( $_POST[ "_wpnonce" ] );
+            $action = "bulk-" . $this->_args[ "plural" ];
+
+            if ( !wp_verify_nonce( $nonce, $action ) ) wp_die( "Nope! Security check failed!" );
+        }
+
+        $action  = $this->current_action();
+        $actions = array_keys( $this->get_bulk_actions() );
+
+        if ( !in_array( $action, $actions ) ) return;
+
+        switch ( $action )
+        {
+            case "upd_shipped":
+                $this->process_b_a_upd_status( $_POST[ "orders" ] );
+            break;
+        }
     }
 
     /**
@@ -292,7 +309,7 @@ class DSM_Orders_table extends \WP_List_Table
      */
     public function column_cb( $item )
     {
-        // return sprintf( "<input type='checkbox' name='users[]' value='%s' />", $item->ID );
+        return sprintf( "<input type='checkbox' name='orders[]' value='%s' />", $item->ID );
     }
 
     /**
@@ -401,17 +418,17 @@ class DSM_Orders_table extends \WP_List_Table
     }
 
     /**
+     * Extra infos on top or bottom of the table
      *
      * @since   1.0.0
      * @return  void
      */
     public function extra_tablenav( $which )
     {
-        // if ( $which == "top" )
-        //     echo"Hello, I'm before the table";
-
+        // if ( $which == "top"    )
         // if ( $which == "bottom" )
-        //     echo"Hi, I'm after the table";
+
+        require( dirname( \Dropshipping_Supplier::FILE ) . "/templates/notices/message.php" );
     }
 
     /**
@@ -431,6 +448,32 @@ class DSM_Orders_table extends \WP_List_Table
                     $orders[] = $order;
 
             $this->orders = $orders;
+        }
+    }
+
+    /**
+     * Update order status.
+     *
+     * @since   1.0.0
+     * @return  void
+     */
+    public function process_b_a_upd_status( $orders )
+    {
+        if ( !empty( $orders ) )
+        {
+            foreach ( $orders as $order_id )
+            {
+                $order = wc_get_order( $order_id );
+
+                if ( $order->get_status() == "processing" )
+                {
+                    $order->update_status( "shipped" );
+                    $order->save();
+
+                    $log = "INFO - Order #{$order_id} updated via bulk action.";
+                    \Dropshipping_Supplier::log( $log );
+                }
+            }
         }
     }
 }

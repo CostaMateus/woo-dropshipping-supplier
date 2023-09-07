@@ -65,6 +65,8 @@
 
         function preventSubmitBulkActions( e, a )
         {
+            if ( a == "-1" ) return;
+
             const query  = window.location.search;
             const params = new URLSearchParams( query );
 
@@ -72,40 +74,60 @@
             if ( page == 0 || page != "woo_ds_supplier" ) return;
 
             const tab    = params.has( "tab" ) ? params.get( "tab" ) : 0;
-            if ( tab  == 0 || tab  != "shopkeepers" ) return;
+            const spp_tab = [ "shopkeepers", "orders" ];
+            if ( tab  == 0 || !spp_tab.includes( tab ) ) return;
 
             e.preventDefault();
 
-            const users = $( '#dsm-users-list-table-form input[name^="users"]:checked' );
-
-            if ( a == "-1" ) return;
-
-            if ( users.length == 0 )
+            if ( $( '#dsm-users-list-table-form' ).length > 0 )
             {
-                alert( woo_dsm_params.messages.select_users );
+                const users = $( '#dsm-users-list-table-form input[name^="users"]:checked' );
+
+                if ( users.length == 0 )
+                {
+                    alert( woo_dsm_params.messages.select_users );
+                    return;
+                }
+
+                if ( a == "del_users" )
+                {
+                    if ( confirm( woo_dsm_params.messages.del_users ) )
+                    {
+                        $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
+                        $( "#dsm-users-list-table-form" ).submit();
+                    }
+                }
+                else if ( a == "del_products" )
+                {
+                    if ( confirm( woo_dsm_params.messages.del_products ) )
+                    {
+                        $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
+                        $( "#dsm-users-list-table-form" ).submit();
+                    }
+                }
+                else
+                {
+                    $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
+                    $( "#dsm-users-list-table-form" ).submit();
+                }
+
                 return;
             }
 
-            if ( a == "del_users" )
+            if ( $( '#dsm-orders-list-table-form' ).length > 0 )
             {
-                if ( confirm( woo_dsm_params.messages.del_users ) )
+                const orders = $( '#dsm-orders-list-table-form input[name^="orders"]:checked' );
+
+                if ( orders.length == 0 )
                 {
-                    $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
-                    $( "#dsm-users-list-table-form" ).submit();
+                    alert( woo_dsm_params.messages.select_orders );
+                    return;
                 }
-            }
-            else if ( a == "del_products" )
-            {
-                if ( confirm( woo_dsm_params.messages.del_products ) )
-                {
-                    $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
-                    $( "#dsm-users-list-table-form" ).submit();
-                }
-            }
-            else
-            {
+
                 $( "#dsm-modal-load" ).removeClass( "dsm-d-none" );
-                $( "#dsm-users-list-table-form" ).submit();
+                $( "#dsm-orders-list-table-form" ).submit();
+
+                return;
             }
         }
 
@@ -124,17 +146,22 @@
 
         function show_bulk_actions_message( val )
         {
-            $( ".dsm-bulkactions-del-orders" ).addClass( "dsm-d-none" );
-            $( ".dsm-bulkactions-del-users"  ).addClass( "dsm-d-none" );
+            $( ".dsm-bulkactions-del-orders"  ).addClass( "dsm-d-none" );
+            $( ".dsm-bulkactions-del-users"   ).addClass( "dsm-d-none" );
+            $( ".dsm-bulkactions-upd-shipped" ).addClass( "dsm-d-none" );
 
             switch ( val )
             {
                 case "del_orders":
-                    $( ".dsm-bulkactions-del-orders" ).removeClass( "dsm-d-none" );
+                    $( ".dsm-bulkactions-del-orders"  ).removeClass( "dsm-d-none" );
                 break;
 
                 case "del_users":
-                    $( ".dsm-bulkactions-del-users"  ).removeClass( "dsm-d-none" );
+                    $( ".dsm-bulkactions-del-users"   ).removeClass( "dsm-d-none" );
+                break;
+
+                case "upd_shipped":
+                    $( ".dsm-bulkactions-upd_shipped" ).removeClass( "dsm-d-none" );
                 break;
             }
         }

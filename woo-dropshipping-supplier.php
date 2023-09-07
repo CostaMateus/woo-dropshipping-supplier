@@ -437,9 +437,10 @@ class Dropshipping_Supplier
 			[
 				"ajax_url" => admin_url( "admin-ajax.php" ),
 				"messages" => [
-					"del_users"    => __( "This action will delete the selected shopkeeper user as well as all of its orders. Click OK to confirm this action.", "woo_ds_supplier" ),
-					"del_orders"   => __( "This action will delete all orders from the selected shopkeeper. Click OK to confirm this action.", "woo_ds_supplier" ),
-					"select_users" => __( "Please select at least one shopkeeper, for any action.", "woo_ds_supplier" ),
+					"del_users"     => __( "This action will delete the selected shopkeeper user as well as all of its orders. Click OK to confirm this action.", "woo_ds_supplier" ),
+					"del_orders"    => __( "This action will delete all orders from the selected shopkeeper. Click OK to confirm this action.", "woo_ds_supplier" ),
+					"select_users"  => __( "Please select at least one shopkeeper, for any action.", "woo_ds_supplier" ),
+					"select_orders" => __( "Please select at least one order, for any action.", "woo_ds_supplier" ),
 				]
 			]
 		);
