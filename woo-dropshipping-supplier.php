@@ -493,12 +493,11 @@ class Dropshipping_Supplier
 		if ( !current_user_can( "manage_options" ) ) wp_die( __( "You do not have sufficient permissions to access this page." ) );
 
 		$tabs = [
-			"general"     => "General",
-			"shopkeepers" => "Shopkeepers",
-			// "products"  => "Products",
-			"orders"      => "Orders",
-			"settings"    => "Settings",
-			"tools"       => "Tools",
+			"general"     => __( "General",     "woo_ds_supplier" ),
+			"shopkeepers" => __( "Shopkeepers", "woo_ds_supplier" ),
+			"orders"      => __( "Orders",      "woo_ds_supplier" ),
+			// "settings"    => __( "Settings",    "woo_ds_supplier" ),
+			// "tools"       => __( "Tools",       "woo_ds_supplier" ),
 		];
 
 		$tab  = isset( $_GET[ "tab" ] ) ? $_GET[ "tab" ] : "general";
