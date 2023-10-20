@@ -78,16 +78,20 @@ class DSM_REST_Tags_V1_Controller extends DSM_REST_Main_Controller
 			$path     = "{$dirname}/{$filename}";
 			$success  = file_put_contents( $path, $tag );
 
-			if ( !$success ) return new WP_Error( "dsm_rest_tags_v1_error", __( "Error saving tag.", "woo_ds_supplier" ), 400 );
+			if ( !$success ) return new WP_Error( "dsm_rest_tags_v1_error", __( "Error saving tag on supplier.", "woo_ds_supplier" ), 400 );
 
 			$order    = wc_get_order( $order_id );
 
 			$order->add_meta_data( "_dsm_order_tag_{$order_id}", true );
 			$order->save();
 
-			return new WP_REST_Response( [ "code" => "dsm_rest_orders_v1_success" ], 200 );
+			return new WP_REST_Response( [
+				"code" => "dsm_rest_orders_v1_success",
+				"success" => true,
+				"message" => __( "Tag saved successfully", "woo_ds_supplier" )
+			], 200 );
 		}
 
-		return new WP_Error( "dsm_rest_tags_v1_error", __( "Error saving tag.", "woo_ds_supplier" ), 500 );
+		return new WP_Error( "dsm_rest_tags_v1_error", __( "Error saving tag on supplier.", "woo_ds_supplier" ), 500 );
 	}
 }
