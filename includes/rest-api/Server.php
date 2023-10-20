@@ -40,6 +40,7 @@ class Server
 
 		require_once( dirname( __FILE__ ) . "/Controllers/v1/class-dsm-rest-orders-v1-controller.php"   );
 		require_once( dirname( __FILE__ ) . "/Controllers/v1/class-dsm-rest-products-v1-controller.php" );
+		require_once( dirname( __FILE__ ) . "/Controllers/v1/class-dsm-rest-tags-v1-controller.php"     );
 
 		add_action( "rest_api_init", [ $this, "register_rest_routes" ], 10 );
 	}
@@ -89,6 +90,7 @@ class Server
 		return [
 			"orders"   => "DSM_REST_Orders_V1_Controller",
 			"products" => "DSM_REST_Products_V1_Controller",
+			"tags"     => "DSM_REST_Tags_V1_Controller",
         ];
 	}
 
