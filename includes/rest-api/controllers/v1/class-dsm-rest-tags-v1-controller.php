@@ -61,8 +61,6 @@ class DSM_REST_Tags_V1_Controller extends DSM_REST_Main_Controller
 
 		$data       = json_decode( $request->get_body(), true );
 
-		error_log( print_r( $data, true ) );
-
 		$upload_dir = wp_upload_dir();
 
 		if ( !empty( $upload_dir[ "basedir" ] ) )
