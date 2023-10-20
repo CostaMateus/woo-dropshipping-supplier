@@ -67,21 +67,25 @@ class DSM_REST_Tags_V1_Controller extends DSM_REST_Main_Controller
 
 		if ( !empty( $upload_dir[ "basedir" ] ) )
 		{
-			$order_id = $data[ "order_id" ];
-			$tag      = base64_decode( $data[ "tag_content" ] );
-			$ext      = pathinfo( $data[ "tag_name" ], PATHINFO_EXTENSION );
-			$filename = "dsm_tag_{$order_id}.{$ext}";
-			$dirname  = $upload_dir[ "basedir" ] . "/dsm_tags";
+			$order_id  = $data[ "order_id" ];
+			$tag       = base64_decode( $data[ "tag_content" ] );
+			$ext       = pathinfo( $data[ "tag_name" ], PATHINFO_EXTENSION );
+			$filename  = "dsm_tag_{$order_id}.{$ext}";
+			$dirname   = $upload_dir[ "basedir" ] . "/dsm_tags";
 
 			if ( !file_exists( $dirname ) ) wp_mkdir_p( $dirname );
 
-			$path     = "{$dirname}/{$filename}";
-			$success  = file_put_contents( $path, $tag );
+			$path      = "{$dirname}/{$filename}";
+			$success   = file_put_contents( $path, $tag );
 
 			if ( !$success ) return new WP_Error( "dsm_rest_tags_v1_error", __( "Error saving tag on supplier.", "woo_ds_supplier" ), 400 );
 
-			$order    = wc_get_order( $order_id );
+			$order     = wc_get_order( $order_id );
 
+			$path_note = $upload_dir[ "baseurl" ] . "/dsm_tags/{$filename}";
+			$message   = __( "Download tag, click <a href='{$path_note}' download >here</a>", "woo_ds_supplier" );
+
+			$order->add_order_note( $message );
 			$order->add_meta_data( "_dsm_order_tag_{$order_id}", true );
 			$order->save();
 
