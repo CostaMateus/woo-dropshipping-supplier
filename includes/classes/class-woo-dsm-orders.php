@@ -172,7 +172,10 @@ class DSM_Orders
 			$new_columns[ $column_name ] = $column_info;
 
 			if ( "order_status" === $column_name )
-				$new_columns[ \Dropshipping_Supplier::DOMAIN . "_shopkeeper" ] = __( "Shopkeeper", "woo_ds_supplier" );
+            {
+				$new_columns[ \Dropshipping_Supplier::DOMAIN . "_shopkeeper"     ] = __( "Shopkeeper", "woo_ds_supplier" );
+				$new_columns[ \Dropshipping_Supplier::DOMAIN . "_shopkeeper_tag" ] = __( "Tag",        "woo_ds_supplier" );
+            }
 		}
 
 		return $new_columns;
@@ -189,14 +192,31 @@ class DSM_Orders
 	 */
 	public function add_column_content_shopkeeper( $column, $order_id )
 	{
-		if ( $column === \Dropshipping_Supplier::DOMAIN . "_shopkeeper" )
-		{
-			$order         = wc_get_order( $order_id );
-			$shopkeeper_id = $order->get_customer_id();
-            $shopkeeper    = get_user_by( "id", $shopkeeper_id );
+        if ( $column === \Dropshipping_Supplier::DOMAIN . "_shopkeeper" )
+        {
+			$order = wc_get_order( $order_id );
 
-            echo $shopkeeper->user_login;
+            if ( $order->get_meta( "_dsm_order" ) )
+            {
+                $shopkeeper_id = $order->get_customer_id();
+                $shopkeeper    = get_user_by( "id", $shopkeeper_id );
+
+                echo $shopkeeper->user_login;
+            }
 		}
+
+        if ( $column === \Dropshipping_Supplier::DOMAIN . "_shopkeeper_tag" )
+        {
+			$order = wc_get_order( $order_id );
+
+            if ( $order->get_meta( "_dsm_order" ) )
+            {
+                if ( !$order->get_meta( "_dsm_order_tag_{$order_id}" ) )
+                    echo "<mark class='outofstock'>" . __( "Awaiting receipt of tag.", "woo_ds_shopkeeper" ) . "</mark>";
+                else
+                    echo "<mark class='instock'>" . __( "Tag already received.", "woo_ds_shopkeeper" ) . "</mark>";
+            }
+        }
 	}
 }
 
