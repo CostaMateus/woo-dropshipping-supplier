@@ -81,7 +81,7 @@ class DSM_REST_Tags_V1_Controller extends DSM_REST_Main_Controller
 			$order     = wc_get_order( $order_id );
 
 			$path_note = $upload_dir[ "baseurl" ] . "/dsm_tags/{$filename}";
-			$message   = __( "Download tag, click <a href='{$path_note}' download >here</a>", "woo_ds_supplier" );
+			$message   = __( "\nShipping tag, download, click <a href='{$path_note}' download >here</a>\n", "woo_ds_supplier" );
 
 			$order->add_order_note( $message );
 			$order->add_meta_data( "_dsm_order_tag_{$order_id}", true );
