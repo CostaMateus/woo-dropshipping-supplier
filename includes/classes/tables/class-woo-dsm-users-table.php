@@ -365,17 +365,17 @@ class DSM_Users_table extends \WP_List_Table
 
         if ( $k1 && $k2 )
         {
-            $text  = translate( "Keys setted", "woo_ds_supplier" );
+            $text  = __( "Keys setted", "woo_ds_supplier" );
             $class = "status-processing";
         }
         elseif ( ( $k1 && !$k2 ) || ( !$k1 && $k2 ) )
         {
-            $text  = translate( "Missing one key", "woo_ds_supplier" );
+            $text  = __( "Missing one key", "woo_ds_supplier" );
             $class = "status-on-hold";
         }
         else
         {
-            $text  = translate( "Both keys missing", "woo_ds_supplier" );
+            $text  = __( "Both keys missing", "woo_ds_supplier" );
             $class = "status-failed";
         }
 

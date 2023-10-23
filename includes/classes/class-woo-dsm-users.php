@@ -80,7 +80,7 @@ class DSM_Users
 
 		if ( !$user_id )
 		{
-			$message = translate( "Invalid shopkeeper's ID.", "woo_ds_supplier" );
+			$message = __( "Invalid shopkeeper's ID.", "woo_ds_supplier" );
 			return wp_send_json_error( $message, 400 );
 		}
 
@@ -88,7 +88,7 @@ class DSM_Users
 
 		if ( !$url_sp )
 		{
-			$message = translate( "Invalid shopkeeper's URL. Fill in the 'website' field and save.", "woo_ds_supplier" );
+			$message = __( "Invalid shopkeeper's URL. Fill in the 'website' field and save.", "woo_ds_supplier" );
 			return wp_send_json_error( $message, 400 );
 		}
 		else
@@ -97,7 +97,7 @@ class DSM_Users
 
 			if ( !in_array( "shopkeeper", $user->roles ) )
 			{
-				$message = translate( "The current user is not a shopkeeper.", "woo_ds_supplier" );
+				$message = __( "The current user is not a shopkeeper.", "woo_ds_supplier" );
 				return wp_send_json_error( $message, 400 );
 			}
 
@@ -162,17 +162,17 @@ class DSM_Users
 
 				if ( $k1 && $k2 )
 				{
-					$text  = translate( "Keys setted", "woo_ds_supplier" );
+					$text  = __( "Keys setted", "woo_ds_supplier" );
 					$class = "status-processing";
 				}
 				elseif ( ( $k1 && !$k2 ) || ( !$k1 && $k2 ) )
 				{
-					$text  = translate( "Missing one key", "woo_ds_supplier" );
+					$text  = __( "Missing one key", "woo_ds_supplier" );
 					$class = "status-on-hold";
 				}
 				else
 				{
-					$text  = translate( "Both keys missing", "woo_ds_supplier" );
+					$text  = __( "Both keys missing", "woo_ds_supplier" );
 					$class = "status-failed";
 				}
 
