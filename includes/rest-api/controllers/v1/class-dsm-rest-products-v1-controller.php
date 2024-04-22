@@ -69,33 +69,8 @@ class DSM_REST_Products_V1_Controller extends DSM_REST_Main_Controller
 			return new WP_Error( $error[ "code" ], $error[ "message" ], $error[ "status" ] );
 		}
 
-		/**
-		 * Disable permissions check locally
-		 */
-		add_filter( "woocommerce_rest_check_permissions", "__return_true" );
-
-		$page      = 1;
-		$data      = [];
-		$request   = new WP_REST_Request( "GET", "/wc/v3/products" );
-
-		do
-		{
-			/**
-			 * Load all products at once to avoid pagination issues
-			 */
-			$request->set_query_params( [
-				"per_page" => 100,
-				"page"     => $page++,
-				"type"     => "simple",
-				"status"   => "publish"
-			] );
-
-			$response = rest_do_request( $request );
-			$aux      = rest_get_server()->response_to_data( $response, false );
-
-			$data     = array_merge( $data, $aux );
-		}
-		while ( count( $aux ) == 100 );
+		$data = $this->get_products();
+		$data = $this->get_variations( $data );
 
 		return new WP_REST_Response( [
 			"code"  => "dsm_rest_products_v1_success",
@@ -156,5 +131,86 @@ class DSM_REST_Products_V1_Controller extends DSM_REST_Main_Controller
 		return new WP_REST_Response( [
 			"code" => "dsm_rest_products_v1_success",
 		], 200 );
+	}
+
+	/**
+	 * Get the products
+	 *
+	 * @return 	array
+	 */
+	private function get_products()
+	{
+		/**
+		 * Disable permissions check locally
+		 */
+		add_filter( "woocommerce_rest_check_permissions", "__return_true" );
+
+		$page      = 1;
+		$data      = [];
+		$request   = new WP_REST_Request( "GET", "/wc/v3/products" );
+
+		do
+		{
+			/**
+			 * Load all products at once to avoid pagination issues
+			 */
+			$request->set_query_params( [
+				"per_page" => 100,
+				"page"     => $page++,
+				// "type"     => "simple",
+				"status"   => "publish"
+			] );
+
+			$response = rest_do_request( $request );
+			$aux      = rest_get_server()->response_to_data( $response, false );
+
+			$data     = array_merge( $data, $aux );
+		}
+		while ( count( $aux ) == 100 );
+
+		return $data;
+	}
+
+	/**
+	 * Get the products variations
+	 *
+	 * @since   1.0.0
+	 * @param 	array 	$data
+	 * @return 	array
+	 */
+	private function get_variations( array $products )
+	{
+		$data = [];
+
+		foreach ( $products as $product )
+		{
+			$product_id = $product[ "id" ];
+			$page       = 1;
+			$variations = [];
+			$request    = new WP_REST_Request( "GET", "/wc/v3/products/{$product_id}/variations" );
+
+			do
+			{
+				/**
+				 * Load all variations at once to avoid pagination issues
+				 */
+				$request->set_query_params( [
+					"per_page" => 100,
+					"page"     => $page++,
+				] );
+
+				$response   = rest_do_request( $request );
+				$aux        = rest_get_server()->response_to_data( $response, false );
+
+				$variations = array_merge( $variations, $aux );
+			}
+			while ( count( $aux ) == 100 );
+
+			$product[ "variations" ] = $variations;
+
+			$data[] = $product;
+		}
+
+		return $data;
 	}
 }
