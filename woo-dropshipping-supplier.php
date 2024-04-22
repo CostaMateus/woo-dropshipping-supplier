@@ -6,10 +6,9 @@
  * Author URI:           https://costamateus.com.br/
  * Version:              1.1.0
  * Text Domain:          woo_ds_supplier
- * Requires at least:    6.0
- * Requires PHP:         7.3
- * WC requires at least: 7.0
- * WC tested up to:      8.0
+ * Requires at least:    6.3
+ * Requires PHP:         7.4
+ * WC requires at least: 8.2
  *
  * @package 			 Dropshipping_Supplier
  * @version 			 1.1.0
@@ -30,7 +29,7 @@ class Dropshipping_Supplier
 	 * @since 	1.0.0
 	 * @var 	string
 	 */
-	const VERSION = "1.0.0";
+	const VERSION = "1.1.0";
 
 	/**
 	 * Plugin domain.
@@ -242,8 +241,6 @@ class Dropshipping_Supplier
 		add_action( "init",                        [ $this, "load_rest_api"             ]     );
         add_action( "init",                        [ $this, "add_custom_order_status"   ]     );
 
-		add_action( "before_woocommerce_init",     [ $this, "compatibility_with_HPOS"   ]     );
-
 		add_action( "admin_menu",                  [ $this, "add_admin_menu"            ], 9  );
         add_action( "admin_enqueue_scripts",       [ $this, "add_admin_style_script"    ]     );
 
@@ -307,18 +304,6 @@ class Dropshipping_Supplier
 			"label_count"               => _n_noop( "Shipped <span class='count'>(%s)</span>", "Shipped <span class='count'>(%s)</span>" )
 		] );
     }
-
-	/**
-	 * Compatibility with HPOS
-	 *
-	 * @since 	1.1.0
-	 * @return 	void
-	 */
-	public static function compatibility_with_HPOS()
-	{
-		if ( class_exists( AutomatticWooCommerceUtilitiesFeaturesUtil::class ) )
-			AutomatticWooCommerceUtilitiesFeaturesUtil::declare_compatibility( "custom_order_tables", self::FILE, true );
-	}
 
 	/**
 	 * Create the role 'shopkeeper'.
