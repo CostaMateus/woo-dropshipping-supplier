@@ -6,9 +6,10 @@
  * Author URI:           https://costamateus.com.br/
  * Version:              1.1.0
  * Text Domain:          woo_ds_supplier
- * Requires at least:    6.3
+ * Requires at least:    6.4
  * Requires PHP:         7.4
  * WC requires at least: 8.2
+ * WC tested up to:      8.2
  *
  * @package 			 Dropshipping_Supplier
  * @version 			 1.1.0
@@ -78,6 +79,9 @@ class Dropshipping_Supplier
         }
 
         if ( $has_missing ) return;
+
+		if ( class_exists( "WooCommerce" ) )
+			add_action( "before_woocommerce_init", [ $this, "setup_hpos_compatibility" ] );
 
 		$this->add_requires();
         $this->add_actions();
@@ -209,6 +213,27 @@ class Dropshipping_Supplier
 	public static function missing_notice_ecfb()
 	{
 		require_once( dirname( self::FILE ) . "/templates/notices/missing-ecfb.php" );
+	}
+
+	/**
+	 * Setup WooCommerce HPOS compatibility.
+	 *
+	 * @since 	1.1.0
+	 * @return 	void
+	 */
+	public function setup_hpos_compatibility()
+	{
+		if ( defined( "WC_VERSION" ) && version_compare( WC_VERSION, "7.1", "<" ) )
+			return;
+
+		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) )
+		{
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility(
+				"custom_order_tables",
+				"woo-dropshipping-supplier/woo-dropshipping-supplier.php",
+				true
+			);
+		}
 	}
 
 	/**
