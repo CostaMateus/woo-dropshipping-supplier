@@ -55,7 +55,7 @@ $nu_text = __( "Add New", "woo_ds_supplier" );
 
 		<form id="dsm-users-list-table-form" method="post" >
 			<?php
-				$page  = htmlspecialchars( $_POST[ "page" ] );
+				$page  = htmlspecialchars( $_POST[ "page" ] ?? "" );
 				$paged = filter_input( INPUT_GET, 'paged', FILTER_SANITIZE_NUMBER_INT );
 
 				printf( "<input type='hidden' name='page'  value='%s' />", $page  );

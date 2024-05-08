@@ -242,7 +242,8 @@ class DSM_Orders_table extends \WP_List_Table
 
         $this->orders          = array_chunk( $this->orders, $per_page )[ $current_page - 1 ];
 
-        if ( empty( $paged ) || !is_numeric( $paged ) || $paged<=0 ) $paged = 1;
+        if ( empty( $paged ) || !is_numeric( $paged ) || $paged<=0 )
+            $paged = 1;
 
         $this->set_pagination_args( [
             "total_items" => $total_items,
