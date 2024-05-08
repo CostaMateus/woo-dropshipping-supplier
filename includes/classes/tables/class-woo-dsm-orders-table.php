@@ -240,18 +240,25 @@ class DSM_Orders_table extends \WP_List_Table
         $total_items           = count( $this->orders );
         $total_pages           = ceil( $total_items / $per_page );
 
-        $this->orders          = array_chunk( $this->orders, $per_page )[ $current_page - 1 ];
+        if ( $total_items >= 1 )
+        {
+            $this->orders = array_chunk( $this->orders, $per_page )[ $current_page - 1 ];
 
-        if ( empty( $paged ) || !is_numeric( $paged ) || $paged<=0 )
-            $paged = 1;
+            if ( empty( $paged ) || !is_numeric( $paged ) || $paged<=0 )
+                $paged = 1;
 
-        $this->set_pagination_args( [
-            "total_items" => $total_items,
-            "total_pages" => $total_pages,
-            "per_page"    => $per_page,
-        ] );
+            $this->set_pagination_args( [
+                "total_items" => $total_items,
+                "total_pages" => $total_pages,
+                "per_page"    => $per_page,
+            ] );
 
-        $this->items           = $this->orders;
+            $this->items  = $this->orders;
+        }
+        else
+        {
+            $this->items  = [];
+        }
     }
 
     /**
