@@ -187,10 +187,11 @@ class Dropshipping_Supplier
         }
 
 		self::remove_role_from_users();
-        self::remove_role();
 		self::remove_hash();
 		self::remove_users_meta();
 		self::remove_options();
+
+        remove_role( "shopkeeper" );
     }
 
 	/**
@@ -361,20 +362,6 @@ class Dropshipping_Supplier
 		$users = get_users( $args );
 
 		foreach ( $users as $user ) $user->remove_role( "shopkeeper" );
-	}
-
-	/**
-	 * Delete the role 'shopkeeper'.
-	 *
-	 * @since 	1.0.0
-	 * @return 	void
-	 */
-	public static function remove_role()
-	{
-		$shopkeeper = get_role( "shopkeeper" );
-		$caps       = $shopkeeper->capabilities;
-
-		foreach ( $caps as $cap ) $shopkeeper->remove_cap( $cap );
 	}
 
 	/**
