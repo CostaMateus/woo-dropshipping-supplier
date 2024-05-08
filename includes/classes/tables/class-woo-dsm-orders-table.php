@@ -130,11 +130,11 @@ class DSM_Orders_table extends \WP_List_Table
         $order   = ( !empty( $_GET[ "order"   ] ) ) ? $_GET[ "order"   ] : "desc";
         $orderby = ( !empty( $_GET[ "orderby" ] ) ) ? $_GET[ "orderby" ] : "order_id";
 
-        if ( $_GET[ "orderby" ] === "order_id"   ) $orderby = "order_id";
-        if ( $_GET[ "orderby" ] === "shopkeeper" ) $orderby = "shopkeeper";
-        if ( $_GET[ "orderby" ] === "date"       ) $orderby = "date";
-        if ( $_GET[ "orderby" ] === "status"     ) $orderby = "status";
-        if ( $_GET[ "orderby" ] === "total"      ) $orderby = "total";
+        // if ( $_GET[ "orderby" ] === "order_id"   ) $orderby = "order_id";
+        // if ( $_GET[ "orderby" ] === "shopkeeper" ) $orderby = "shopkeeper";
+        // if ( $_GET[ "orderby" ] === "date"       ) $orderby = "date";
+        // if ( $_GET[ "orderby" ] === "status"     ) $orderby = "status";
+        // if ( $_GET[ "orderby" ] === "total"      ) $orderby = "total";
 
         if ( $orderby == "order_id" )
         {
