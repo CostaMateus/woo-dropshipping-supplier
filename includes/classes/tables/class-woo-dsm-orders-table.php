@@ -235,7 +235,7 @@ class DSM_Orders_table extends \WP_List_Table
 
         usort( $this->orders, [ &$this, "usort_reorder" ] );
 
-        $per_page              = 10;
+        $per_page              = 25;
         $current_page          = $this->get_pagenum();
         $total_items           = count( $this->orders );
         $total_pages           = ceil( $total_items / $per_page );
