@@ -69,8 +69,7 @@ class DSM_REST_Products_V1_Controller extends DSM_REST_Main_Controller
 			return new WP_Error( $error[ "code" ], $error[ "message" ], $error[ "status" ] );
 		}
 
-		$data = $this->get_products();
-		$data = $this->get_variations( $data );
+		$data = json_decode( json_encode( $this->get_products() ), true );
 
 		return new WP_REST_Response( [
 			"code"  => "dsm_rest_products_v1_success",
@@ -134,83 +133,67 @@ class DSM_REST_Products_V1_Controller extends DSM_REST_Main_Controller
 	}
 
 	/**
-	 * Get the products
+	 * Get the products of type simple and variable
 	 *
 	 * @return 	array
 	 */
 	private function get_products()
 	{
-		/**
-		 * Disable permissions check locally
-		 */
+		// Disable permissions check locally
 		add_filter( "woocommerce_rest_check_permissions", "__return_true" );
 
-		$page      = 1;
-		$data      = [];
-		$request   = new WP_REST_Request( "GET", "/wc/v3/products" );
+		// Initialize the current page to 1.
+		$page     = 1;
+		// Set the number of products per page.
+		$per_page = 100;
+		// Initialize the array of products.
+		$products = [];
+
+		// Create a new REST request to get products.
+		$request  = new WP_REST_Request( "GET", "/wc/v3/products" );
+
+		// Get only published products.
+		$request->set_query_params( [
+			"per_page" => $per_page,
+			"status"   => "publish",
+		] );
 
 		do
 		{
-			/**
-			 * Load all products at once to avoid pagination issues
-			 */
-			$request->set_query_params( [
-				"per_page" => 100,
-				"page"     => $page++,
-				// "type"     => "simple",
-				"status"   => "publish"
-			] );
+			// Set the page parameter and increment the counter.
+			$request->set_param( "page", $page++ );
 
+			// Make the REST request.
 			$response = rest_do_request( $request );
-			$aux      = rest_get_server()->response_to_data( $response, false );
 
-			$data     = array_merge( $data, $aux );
-		}
-		while ( count( $aux ) == 100 );
-
-		return $data;
-	}
-
-	/**
-	 * Get the products variations
-	 *
-	 * @since   1.0.0
-	 * @param 	array 	$data
-	 * @return 	array
-	 */
-	private function get_variations( array $products )
-	{
-		$data = [];
-
-		foreach ( $products as $product )
-		{
-			$product_id = $product[ "id" ];
-			$page       = 1;
-			$variations = [];
-			$request    = new WP_REST_Request( "GET", "/wc/v3/products/{$product_id}/variations" );
-
-			do
+			// Check if the response was successful.
+			if ( $response->get_status() == 200 )
 			{
-				/**
-				 * Load all variations at once to avoid pagination issues
-				 */
-				$request->set_query_params( [
-					"per_page" => 100,
-					"page"     => $page++,
-				] );
+				// Get the data from the response.
+				$data     = rest_get_server()->response_to_data($response, false);
 
-				$response   = rest_do_request( $request );
-				$aux        = rest_get_server()->response_to_data( $response, false );
+				// Filter only products of type "simple" or "variable".
+				$filtered = array_filter( $data, function ( $product )
+				{
+					return in_array( $product[ "type" ], [ "simple", "variable" ], true ) && !empty( $product[ "sku" ] );
+				} );
 
-				$variations = array_merge( $variations, $aux );
+				// Get available variations for variable products
+				foreach ( $filtered as $key => $product )
+					if ( $product[ "type" ] == "variable" )
+						$filtered[ $key ][ "variations" ] = wc_get_product( $product[ "id" ] )->get_available_variations();
+
+				// Merge the filtered products with the existing products.
+				$products = array_merge( $products, $filtered );
 			}
-			while ( count( $aux ) == 100 );
-
-			$product[ "variations" ] = $variations;
-
-			$data[] = $product;
 		}
+		// Continue until the number of products is less than the per_page limit.
+		while ( count( $data ) == $per_page );
 
-		return $data;
+		// Remove the filter.
+		remove_filter( "woocommerce_rest_check_permissions", "__return_true" );
+
+		// Return the products.
+		return $products;
 	}
 }
