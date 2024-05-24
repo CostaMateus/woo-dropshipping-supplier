@@ -478,8 +478,7 @@ class DSM_Orders_table extends \WP_List_Table
                     $order->update_status( "shipped" );
                     $order->save();
 
-                    $log = "INFO - Order #{$order_id} updated via bulk action.";
-                    \Dropshipping_Supplier::log( $log );
+                    \Dropshipping_Supplier::log( "debug", "Order #{$order_id} updated via bulk action." );
                 }
             }
         }

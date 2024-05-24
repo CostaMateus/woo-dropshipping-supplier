@@ -82,28 +82,40 @@ class DSM_Orders
         $url      = "{$url}/wp-json/dsm/v1/orders/update";
 
         $response = wp_remote_post( $url, $args );
+
         $message  = "";
+        $log_msg  = "";
+        $level    = "debug";
+        $is_error = false;
 
         if ( is_wp_error( $response ) )
         {
-            $message = "Failed to inform change of status of order #{$order_id} of shopkeeper ID: {$id};";
-            \Dropshipping_Supplier::log( $response->get_error_message(), true );
+            $message  = "Failed to inform change of status of order #{$order_id} of shopkeeper ID: {$id};";
+
+            $log_msg  = "{$message} " . $response->get_error_message();
+            $level    = "error";
+            $is_error = true;
         }
         else
         {
             $status   = wp_remote_retrieve_response_code( $response );
             $data     = json_decode( $response[ "body" ], true );
 
+            $log_msg  = json_encode( $data );
+            $level    = "debug";
+            $is_error = false;
+
             if ( $status != 200 )
             {
-                $message = "Failed to inform change of status of order #{$order_id} of shopkeeper ID: {$id};";
-                \Dropshipping_Supplier::log( json_encode( $data ), true );
-            }
-            else
-            {
-                \Dropshipping_Supplier::log( json_encode( $data ) );
+                $message  = "Failed to inform change of status of order #{$order_id} of shopkeeper ID: {$id};";
+
+                $log_msg  = json_encode( [ $message, $data ] );
+                $level    = "error";
+                $is_error = true;
             }
         }
+
+        \Dropshipping_Supplier::log( $level, $log_msg, $is_error );
 
         if ( !empty( $message ) )
         {

@@ -68,7 +68,7 @@ class DSM_REST_Orders_V1_Controller extends DSM_REST_Main_Controller
 			if ( !isset( $data[ $check ] ) )
 				return new WP_Error( "dsm_rest_orders_v1_missing_data", __( "Missing data body.", "woo_ds_supplier" ), 400 );
 
-		\Dropshipping_Supplier::log( $request->get_body() );
+		\Dropshipping_Supplier::log( "debug", $request->get_body() );
 
 		switch ( $data[ "action" ] )
 		{

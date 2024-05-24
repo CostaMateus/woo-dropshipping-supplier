@@ -4,7 +4,7 @@
  * Description:          Dropshipping Supplier Module for WooCommerce.
  * Author:               Mateus Costa
  * Author URI:           https://costamateus.com.br/
- * Version:              1.1.0
+ * Version:              1.0.0
  * Text Domain:          woo_ds_supplier
  * Requires at least:    6.4
  * Requires PHP:         7.4
@@ -12,7 +12,7 @@
  * WC tested up to:      8.2
  *
  * @package 			 Dropshipping_Supplier
- * @version 			 1.1.0
+ * @version 			 1.0.0
  */
 
 defined( "ABSPATH" ) || exit;
@@ -30,7 +30,7 @@ class Dropshipping_Supplier
 	 * @since 	1.0.0
 	 * @var 	string
 	 */
-	const VERSION = "1.1.0";
+	const VERSION = "1.0.0";
 
 	/**
 	 * Plugin domain.
@@ -97,19 +97,13 @@ class Dropshipping_Supplier
 	 * @param 	boolean 	$is_error
 	 * @return 	void
 	 */
-	public static function log( $message, $is_error = false )
+	public static function log( string $level, string $message, bool $is_error = false ) : void
 	{
-		$debug = get_option( "_dsm_debug" );
-		$log   = ( function_exists( "wc_get_logger" ) ) ? wc_get_logger() : new WC_Logger();
+		$logger  = wc_get_logger();
+		$context = [ "source" => self::DOMAIN ];
 
-		if ( $debug )
-		{
-			$log->add( self::DOMAIN, $message );
-		}
-		else if ( $is_error )
-		{
-			$log->add( self::DOMAIN, $message );
-		}
+		if ( $is_error || get_option( "_dsm_debug" ) )
+			$logger->$level( $message, $context );
 	}
 
 	/**
@@ -219,7 +213,7 @@ class Dropshipping_Supplier
 	/**
 	 * Setup WooCommerce HPOS compatibility.
 	 *
-	 * @since 	1.1.0
+	 * @since 	1.0.0
 	 * @return 	void
 	 */
 	public function setup_hpos_compatibility()

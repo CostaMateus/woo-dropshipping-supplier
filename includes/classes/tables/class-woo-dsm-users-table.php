@@ -448,8 +448,7 @@ class DSM_Users_table extends \WP_List_Table
                     }
                 }
 
-                $log   = "INFO - Shopkeeper ID {$user_id} - deleted {$count} orders";
-                \Dropshipping_Supplier::log( $log );
+                \Dropshipping_Supplier::log( "debug", "Shopkeeper ID {$user_id} - deleted {$count} orders" );
             }
         }
     }
@@ -473,8 +472,7 @@ class DSM_Users_table extends \WP_List_Table
 
                 wp_delete_user( $user_id );
 
-                $log = "INFO - Deleted supplier ID {$user_id}";
-                \Dropshipping_Supplier::log( $log );
+                \Dropshipping_Supplier::log( "debug", "Deleted supplier ID {$user_id}" );
             }
         }
     }

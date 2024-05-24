@@ -76,7 +76,7 @@ class DSM_Products
 
                 if ( is_wp_error( $response ) )
                 {
-                    \Dropshipping_Supplier::log( $response->get_error_message(), true );
+                    \Dropshipping_Supplier::log( "error", $response->get_error_message(), true );
                     continue;
                 }
 
@@ -85,11 +85,11 @@ class DSM_Products
 
                 if ( $status != 200 )
                 {
-                    \Dropshipping_Supplier::log( json_encode( $data ), true );
+                    \Dropshipping_Supplier::log( "error", json_encode( $data ), true );
                     continue;
                 }
 
-                \Dropshipping_Supplier::log( json_encode( $data ) );
+                \Dropshipping_Supplier::log( "debug", json_encode( $data ) );
             }
         }
     }
