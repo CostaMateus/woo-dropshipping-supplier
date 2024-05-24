@@ -10,7 +10,7 @@
 defined( "ABSPATH" ) || exit;
 
 $_email = get_option( "_dsm_email_general" );
-$_debug = ( !empty( get_option( "_dsm_debug", true ) ) ) ? "checked" : "";
+$_debug = ( !empty( get_option( "_dsm_debug" ) ) ) ? "checked" : "";
 
 ?>
 

@@ -48,7 +48,7 @@ class DSM_Orders
         $secret   = get_user_meta( $id, "_dsm_secret",   true );
         $secret_s = get_user_meta( $id, "_dsm_secret_s", true );
 
-        $email    = get_option( "_dsm_email_general", true );
+        $email    = get_option( "_dsm_email_general" );
         $email    = ( !empty( $email ) && is_email( $email ) ) ? $email : get_bloginfo( "admin_email" );
 
         if ( !$url || !$secret || !$secret_s ) return;

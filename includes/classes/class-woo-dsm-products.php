@@ -46,7 +46,7 @@ class DSM_Products
             $shops = $product->get_meta( "_dsm_shopkeepers_imported", true );
             $shops = explode( ",", $shops );
 
-            $email = get_option( "_dsm_email_general", true );
+            $email = get_option( "_dsm_email_general" );
             $email = ( !empty( $email ) && is_email( $email ) ) ? $email : get_bloginfo( "admin_email" );
 
             foreach ( $shops as $id )

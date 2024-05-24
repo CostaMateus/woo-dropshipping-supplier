@@ -24,7 +24,7 @@ class DSM_Helper
         $categories = [];
         $images     = [];
 
-        if ( get_option( "_dsm_categories_general", true ) )
+        if ( get_option( "_dsm_categories_general" ) )
         {
             foreach ( $product->categories as $category )
             {
