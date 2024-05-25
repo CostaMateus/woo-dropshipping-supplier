@@ -75,7 +75,7 @@ class DSM_Orders
                 "order_id"      => $order->get_meta( "_dsm_order", true ),
                 "status"        => $new_status,
                 "skus"          => $skus,
-                "tracking_code" => "123-TESTE"
+                // "tracking_code" => "123-TESTE"
             ] )
         ];
 
