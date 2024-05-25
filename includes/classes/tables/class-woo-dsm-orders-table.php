@@ -452,7 +452,7 @@ class DSM_Orders_table extends \WP_List_Table
             $orders = [];
 
             foreach ( $this->orders as $order )
-                if ( $_GET[ "supplier" ] == $order->get_meta( "_dsm_shopkeeper" ) )
+                if ( $_GET[ "shopkeeper" ] == $order->get_meta( "_dsm_shopkeeper" ) )
                     $orders[] = $order;
 
             $this->orders = $orders;
@@ -477,6 +477,10 @@ class DSM_Orders_table extends \WP_List_Table
                 {
                     $order->update_status( "shipped" );
                     $order->save();
+
+                    foreach ( $this->orders as &$t_order )
+                        if ( $t_order->ID == $order_id )
+                            $t_order->update_status( "shipped" );
 
                     \Dropshipping_Supplier::log( "debug", "Order #{$order_id} updated via bulk action." );
                 }
