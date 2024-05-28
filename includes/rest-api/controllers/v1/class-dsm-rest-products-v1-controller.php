@@ -188,9 +188,10 @@ class DSM_REST_Products_V1_Controller extends DSM_REST_Main_Controller
 						foreach ( $filtered[ $key ][ "variations" ] as &$variation )
 						{
 							$variation_id                = wc_get_product_id_by_sku( $variation[ "sku" ] );
-							$aux_variation               = wc_get_product( $variation_id );
+							$variation_object            = wc_get_product( $variation_id );
 
-							$variation[ "manage_stock" ] = ( $aux_variation->get_manage_stock() === true ) ? true : false;
+							$variation[ "manage_stock" ] = ( $variation_object->get_manage_stock() === true ) ? true : false;
+							$variation[ "max_qty"      ] = wc_stock_amount( $variation_object->get_stock_quantity( "edit" ) );
 						}
 					}
 				}
