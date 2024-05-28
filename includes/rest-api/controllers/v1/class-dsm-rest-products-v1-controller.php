@@ -170,7 +170,7 @@ class DSM_REST_Products_V1_Controller extends DSM_REST_Main_Controller
 			if ( $response->get_status() == 200 )
 			{
 				// Get the data from the response.
-				$data     = rest_get_server()->response_to_data($response, false);
+				$data     = rest_get_server()->response_to_data( $response, false );
 
 				// Filter only products of type "simple" or "variable".
 				$filtered = array_filter( $data, function ( $product )
