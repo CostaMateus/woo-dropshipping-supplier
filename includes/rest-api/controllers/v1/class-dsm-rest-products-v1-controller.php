@@ -180,8 +180,20 @@ class DSM_REST_Products_V1_Controller extends DSM_REST_Main_Controller
 
 				// Get available variations for variable products
 				foreach ( $filtered as $key => $product )
+				{
 					if ( $product[ "type" ] == "variable" )
+					{
 						$filtered[ $key ][ "variations" ] = wc_get_product( $product[ "id" ] )->get_available_variations();
+
+						foreach ( $filtered[ $key ][ "variations" ] as &$variation )
+						{
+							$variation_id                = wc_get_product_id_by_sku( $variation[ "sku" ] );
+							$aux_variation               = wc_get_product( $variation_id );
+
+							$variation[ "manage_stock" ] = ( $aux_variation->get_manage_stock() === true ) ? true : false;
+						}
+					}
+				}
 
 				// Merge the filtered products with the existing products.
 				$products = array_merge( $products, $filtered );

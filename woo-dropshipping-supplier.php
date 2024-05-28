@@ -629,23 +629,17 @@ class Dropshipping_Supplier
 				wp_die( "Nope! Security check failed!" );
         }
 
-		/**
-		 * Update DSM email general
-		 */
+		// Update DSM email general
 		if ( isset( $_POST[ "dsm_email_general" ] ) && !empty( $_POST[ "dsm_email_general" ] ) )
 			update_option( "_dsm_email_general", $_POST[ "dsm_email_general" ] );
 
-		// /**
-		//  * Update DSM categories general
-		//  */
+		// // Update DSM categories general
 		// if ( isset( $_POST[ "dsm_categories_general" ] ) && $_POST[ "dsm_categories_general" ] === "on" )
 		// 	update_option( "_dsm_categories_general", true );
 		// elseif ( !isset( $_POST[ "dsm_categories_general" ] ) )
 		// 	update_option( "_dsm_categories_general", false );
 
-		/**
-		 * Update DSM debug general
-		 */
+		// Update DSM debug general
 		if ( isset( $_POST[ "dsm_debug_general" ] ) && $_POST[ "dsm_debug_general" ] === "on" )
 			update_option( "_dsm_debug", true );
 		elseif ( !isset( $_POST[ "dsm_debug_general" ] ) )
